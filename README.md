@@ -11,4 +11,3 @@ Gameplay
 Installation
 ------------
 FORage can be installed/compiled with the fortran package manager (fpm).
-
