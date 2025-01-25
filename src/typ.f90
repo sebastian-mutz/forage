@@ -19,7 +19,7 @@ module typ
   implicit none
   private
 !
-  public :: TYP_actor
+  public :: TYP_actor, TYP_io
 !
 !
 ! ==== Definitions =================================================== !
@@ -40,7 +40,17 @@ module typ
      integer(kind=4)   :: att_vitality, att_resilience
      integer(kind=4)   :: skill_forage, skill_scout, skill_guard, skill_heal
      logical           :: can_forage, can_scout, can_guard, can_heal, can_chill, can_explore
-  end type  
+  end type TYP_actor
+!
+!
+! ----  actor
+  type :: TYP_io
+     !! Derived type for input/output.
+     !!
+     !! pUnit : unit for printing messages on screen, typically 6
+     !! wUnit : unit for writing output, e.g. 21
+     integer(kind=4) :: pUnit, wUnit
+  end type TYP_io
 !
 !
 end module typ
