@@ -1,5 +1,5 @@
 program main
-!
+
 ! |--------------------------------------------------------------------|
 ! | Forage: Expedition Simulator                                       |
 ! |                                                                    |
@@ -15,21 +15,20 @@ program main
 ! | ------                                                             |
 ! | Sebastian G. Mutz (sebastian@sebastianmutz.eu)                     |
 ! |--------------------------------------------------------------------|
-!
+
 ! load modules
   use :: typ
   use :: forage
-!
+
+! basic options
   implicit none
-!
-!
+
 ! ==== Declarations
-!
-! ---- game world
+! game world
   integer(kind=4), parameter :: nAct=2
   type(TYP_actor)            :: actor(nAct)
-!
-! ---- data
+
+! data
   data actor(1)%id/1/ &
        &, actor(1)%name/"Holde Knirbe"/ &
        &, actor(1)%hp/100/, actor(1)%sp/100/ &
@@ -39,9 +38,9 @@ program main
        &, actor(1)%can_forage/.true./, actor(1)%can_scout/.true./ &
        &, actor(1)%can_guard/.true./, actor(1)%can_heal/.true./ &
        &, actor(1)%can_chill/.true./, actor(1)%can_explore/.true./
-!
+
 ! ==== Instructions
-!
+! game loop
   call game_loop(nAct, actor)
-!
+
 end program main

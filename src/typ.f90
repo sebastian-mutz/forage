@@ -15,16 +15,17 @@ module typ
 ! | ------                                                             |
 ! | Sebastian G. Mutz (sebastian@sebastianmutz.eu)                     |
 ! |--------------------------------------------------------------------|
-!
+
+! basic options
   implicit none
   private
-!
+
+! declare public
   public :: TYP_actor, TYP_io
-!
-!
+
 ! ==== Definitions =================================================== !
-!
-! ----  actor
+
+! actor
   type :: TYP_actor
      !! Derived type for actors/playable characters.
      !!
@@ -41,9 +42,8 @@ module typ
      integer(kind=4)   :: skill_forage, skill_scout, skill_guard, skill_heal
      logical           :: can_forage, can_scout, can_guard, can_heal, can_chill, can_explore
   end type TYP_actor
-!
-!
-! ----  actor
+
+! input/output
   type :: TYP_io
      !! Derived type for input/output.
      !!
@@ -51,6 +51,5 @@ module typ
      !! wUnit : unit for writing output, e.g. 21
      integer(kind=4) :: pUnit, wUnit
   end type TYP_io
-!
-!
+
 end module typ
