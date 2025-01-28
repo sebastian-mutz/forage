@@ -133,7 +133,9 @@ subroutine eventDice(a, b, e)
   real(kind=4)                 :: rnd
 
 ! ==== Instructions
+! generate a random number (in range 0.0 - 1.0)
   call random_number(rnd)
+! adjust for range and convert to integer
   e=floor(float(a)+rnd*float(b+1-a))
 
 end subroutine eventDice
