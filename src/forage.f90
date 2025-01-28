@@ -124,8 +124,8 @@ subroutine eventDice(a, b, e)
 ! ==== Description
 ! Simulates a dice roll event (integers only) with specified number
 ! range, using  uniform weights ("fair dice").
-! in:  r1, r2  - min and max possible number (e.g., 1,6 for 6-sided die)
-! out: e       - event outcome
+! in:  a, b - min and max possible number (e.g., 1,6 for 6-sided die)
+! out: e    - event outcome
 
 ! ==== Declarations
   integer(kind=4), intent(in)  :: a, b
@@ -134,7 +134,7 @@ subroutine eventDice(a, b, e)
 
 ! ==== Instructions
   call random_number(rnd)
-  e=floor(float(a)+rnd*(float(b+1)-float(a)))
+  e=floor(float(a)+rnd*float(b+1-a))
 
 end subroutine eventDice
 
@@ -158,7 +158,7 @@ subroutine eventBool(p, e)
 ! ==== Instructions
 ! (re-)initialise random number generator (optional)
   call random_seed()
-! generate a random number
+! generate a random number (in range 0.0 - 1.0)
   call random_number(rnd)
 ! determine if the event occurs
   e = (rnd .lt. p)
