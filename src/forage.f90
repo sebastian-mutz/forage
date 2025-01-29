@@ -42,16 +42,29 @@ subroutine game_loop(nAct, actor)
 ! game world
   integer(kind=4), intent(in) :: nAct
   type(TYP_actor), intent(in) :: actor(nAct)
+  type(TYP_inventory)         :: rsc
 
 ! game mechanics
   logical         :: done=.false., aB
   integer(kind=4) :: eventCode, aI
   real(kind=4)    :: aR
 
+! general
+  integer(kind=4) :: i
+
 
 ! ==== Instructions
+! initialisation
+
 ! splash screen and user input
   call start(eventCode)
+
+! load game state
+  call load(rsc)
+  print*, rsc%n
+  do i=1,rsc%n
+     write(io%pUnit, *), rsc%id(i), rsc%stock(i)
+  enddo
 
 ! determine action
   select case (eventCode)
@@ -166,6 +179,36 @@ subroutine eventBool(p, e)
   e = (rnd .lt. p)
 
 end subroutine eventBool
+
+
+! ==================================================================== !
+! -------------------------------------------------------------------- !
+subroutine load(rsc)
+
+! ==== Description
+! Loads game progress (inventory and actors)
+! in :   n   - number of resources
+! out:   rsc - inventory of resources as read from file
+
+! ==== Declarations
+  integer(kind=4)                  :: i
+  type(TYP_inventory), intent(out) :: rsc
+
+! ==== Instructions
+!
+  rsc%n=4
+  allocate(rsc%id(rsc%n))
+  allocate(rsc%stock(rsc%n))
+!
+  open(io%wUnit, file="data/001.sav", action="read")
+     read(io%wUnit,*)
+     do i=2,rsc%n+1
+        read(io%wUnit,*) rsc%id(i-1), rsc%stock(i-1)
+        print*, i, rsc%n
+     enddo
+  close(io%wUnit)
+
+end subroutine load
 
 
 end module forage

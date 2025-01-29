@@ -1,9 +1,9 @@
 name = "forage"
 version = "0.1.0"
-license = "license"
-author = "Jane Doe"
+license = "MIT"
+author = "Sebastian G. Mutz"
 maintainer = "sebastian@mutz.science"
-copyright = "Copyright 2025, Jane Doe"
+copyright = "Copyright 2025, Sebastian G. Mutz"
 [build]
 auto-executables = true
 auto-tests = true

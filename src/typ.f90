@@ -21,7 +21,7 @@ module typ
   private
 
 ! declare public
-  public :: TYP_actor, TYP_io
+  public :: TYP_actor, TYP_io, TYP_item, TYP_inventory
 
 ! ==== Definitions =================================================== !
 
