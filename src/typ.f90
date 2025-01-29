@@ -43,6 +43,27 @@ module typ
      logical           :: can_forage, can_scout, can_guard, can_heal, can_chill, can_explore
   end type TYP_actor
 
+! actor
+  type :: TYP_item
+     !! Derived type for items/resources.
+     !!
+     !! id   : item/resource ID
+     !! name : item/resource name
+     integer(kind=4)   :: id
+     character(len=20) :: name
+  end type TYP_item
+
+! inventory
+  type :: TYP_inventory
+     !! Derived type for inventory.
+     !!
+     !! n      : number of item/resource types in inventory
+     !! id     : item/resource ID (n)
+     !! stock  : amount of each item/resource (n)
+     integer(kind=4)              :: n
+     integer(kind=4), allocatable :: id(:), stock(:)
+  end type TYP_inventory
+
 ! input/output
   type :: TYP_io
      !! Derived type for input/output.
