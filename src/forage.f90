@@ -187,7 +187,6 @@ subroutine load(rsc)
 
 ! ==== Description
 ! Loads game progress (inventory and actors)
-! in :   n   - number of resources
 ! out:   rsc - inventory of resources as read from file
 
 ! ==== Declarations
