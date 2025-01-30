@@ -118,7 +118,6 @@ subroutine start(eventCode)
   write(io%pUnit, *), "// FORage - Expedition Simulator //"
   write(io%pUnit, *), "///////////////////////////////////"
   write(io%pUnit, *), ""
-!   write(io%pUnit, *), "What's next?"
 !   write(io%pUnit, *), "1. Continue game."
 !   write(io%pUnit, *), "2. New game (overwrites progress)."
 !   write(io%pUnit, *), "3. Exit."
