@@ -196,16 +196,19 @@ subroutine load(rsc)
 
 ! ==== Instructions
 !
-  rsc%n=4
-  allocate(rsc%id(rsc%n))
-  allocate(rsc%stock(rsc%n))
-!
   open(io%wUnit, file="data/001.sav", action="read")
-     read(io%wUnit,*)
+
+     ! read number of inventory item types and allocate
+     read(io%wUnit,*) rsc%n
+     allocate(rsc%id(rsc%n))
+     allocate(rsc%stock(rsc%n))
+
+     ! read inventory
      do i=2,rsc%n+1
         read(io%wUnit,*) rsc%id(i-1), rsc%stock(i-1)
         print*, i, rsc%n
      enddo
+
   close(io%wUnit)
 
 end subroutine load
