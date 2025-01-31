@@ -31,7 +31,7 @@ contains
 
 ! ==================================================================== !
 ! -------------------------------------------------------------------- !
-subroutine game_loop(nAct, actor)
+subroutine game_loop()
 
 ! ==== Description
 !! in:
@@ -40,9 +40,7 @@ subroutine game_loop(nAct, actor)
 
 ! ==== Declarations
 ! game world
-  integer(kind=4), intent(in) :: nAct
-  type(TYP_actor), intent(in) :: actor(nAct)
-  type(TYP_inventory)         :: rsc
+  type(TYP_inventory) :: rsc
 
 ! game mechanics
   logical         :: done=.false., aB
