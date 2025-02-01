@@ -129,6 +129,30 @@ end subroutine start
 
 ! ==================================================================== !
 ! -------------------------------------------------------------------- !
+subroutine activities(actor, inventory)
+
+! ==== Description
+! Simulates the outcome of activities/gains of resources:
+! 1. Uses actor skills to determine the probability of success (e.g.,
+!    for foraging).
+! 2. Determines if activity was successful.
+! 3. If successful, uses actor skills to determine dice to be rolled
+!    (i.e. the value range) to determine the extent of the success
+!    (e.g., how much food was gained from foraging).
+! 4. Update and return inventory
+
+! ==== Declarations
+  type(TYP_actor)    , intent(in) :: actor
+  type(TYP_inventory), intent(in) :: inventory
+
+! ==== Instructions
+! generate a random number (in range 0.0 - 1.0)
+
+end subroutine activities
+
+
+! ==================================================================== !
+! -------------------------------------------------------------------- !
 subroutine eventDice(a, b, e)
 
 ! ==== Description

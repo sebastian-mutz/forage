@@ -43,7 +43,7 @@ module typ
      logical           :: can_forage, can_scout, can_guard, can_heal, can_chill, can_explore
   end type TYP_actor
 
-! actor
+! items/resources
   type :: TYP_item
      !! Derived type for items/resources.
      !!

@@ -24,7 +24,7 @@ module ini
   private
 
 ! declare public
-  public :: io, actor
+  public :: io, actor, rsc
 
 ! ==== Declarations
 ! game mechanics
@@ -32,12 +32,22 @@ module ini
 
 ! game world
   type(TYP_actor) :: actor(1)
+  type(TYP_item)  :: rsc(4)
 
 ! ==== Data
 ! game mechanics
   data io%pUnit/6/, io%wUnit/21/
 
 ! game world
+  data rsc(1)%id/1/ &
+       &, rsc(1)%name/"Food"/ &
+       &, rsc(2)%id/2/ &
+       &, rsc(2)%name/"Medicine"/ &
+       &, rsc(3)%id/3/ &
+       &, rsc(3)%name/"Equipment"/ &
+       &, rsc(4)%id/3/ &
+       &, rsc(4)%name/"Treasure"/
+
   data actor(1)%id/1/ &
        &, actor(1)%name/"Holde Knirbe"/ &
        &, actor(1)%hp/100/, actor(1)%sp/100/ &
