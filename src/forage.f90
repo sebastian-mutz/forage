@@ -129,10 +129,10 @@ end subroutine start
 
 ! ==================================================================== !
 ! -------------------------------------------------------------------- !
-subroutine activities(actor, inventory)
+subroutine event(actor, inventory)
 
 ! ==== Description
-! Simulates the outcome of activities/gains of resources:
+! Simulates the outcome of events (per day), incl. gain of resources:
 ! 1. Uses actor skills to determine the probability of success (e.g.,
 !    for foraging).
 ! 2. Determines if activity was successful.
@@ -142,13 +142,33 @@ subroutine activities(actor, inventory)
 ! 4. Update and return inventory
 
 ! ==== Declarations
-  type(TYP_actor)    , intent(in) :: actor
+  type(TYP_actor)    , intent(in) :: actor(1)
   type(TYP_inventory), intent(in) :: inventory
+  integer(kind=4)                 :: i, a, b
+  real(kind=4)                    :: p
 
 ! ==== Instructions
-! generate a random number (in range 0.0 - 1.0)
+!
+! TODO: loop only through actors commanded to carry out action
+! foraging
+  i=1
+! probability of success (based on skill; max 10)
+  p = float(actor(i)%skill_forage)/10
+!
+! calculate possible range of gain based on skill
+  select case (actor(i)%skill_forage)
+     case (1:3)
+        a=1
+        b=3
+     case (4:6)
+        a=3
+        b=5
+     case (7:10)
+        a=5
+        b=8
+  end select
 
-end subroutine activities
+end subroutine event
 
 
 ! ==================================================================== !
