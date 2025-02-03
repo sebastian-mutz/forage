@@ -7,18 +7,14 @@ module forage
 ! | -----                                                              |
 ! | Main procedures (game loop) for Fortran expedition simulator.      |
 ! |                                                                    |
-! | license                                                            |
-! | -------                                                            |
-! | This code is released under the MIT license.                       |
-! |                                                                    |
-! | author                                                             |
-! | ------                                                             |
-! | Sebastian G. Mutz (sebastian@sebastianmutz.eu)                     |
+! | license: MIT                                                       |
+! | author:  Sebastian G. Mutz (sebastian@sebastianmutz.eu)            |
 ! |--------------------------------------------------------------------|
 
 ! load modules
   use :: typ
   use :: ini
+  use :: data
 
 ! basic options
   implicit none

@@ -5,15 +5,10 @@ module typ
 ! |                                                                    |
 ! | about                                                              |
 ! | -----                                                              |
-! | kinds and derived types for Fortran expedition simulator.          |
+! | Kinds and derived types for Fortran expedition simulator.          |
 ! |                                                                    |
-! | license                                                            |
-! | -------                                                            |
-! | This code is released under the MIT license.                       |
-! |                                                                    |
-! | author                                                             |
-! | ------                                                             |
-! | Sebastian G. Mutz (sebastian@sebastianmutz.eu)                     |
+! | license: MIT                                                       |
+! | author:  Sebastian G. Mutz (sebastian@sebastianmutz.eu)            |
 ! |--------------------------------------------------------------------|
 
 ! basic options
@@ -26,7 +21,7 @@ module typ
 
 ! ==== Definitions =================================================== !
 
-! msc
+! define kinds (used consistently and explicitly in derived types and entire project)
  integer, parameter :: dp=selected_real_kind(15,307), sp=selected_real_kind(6,37) &
                     &, i4=selected_int_kind(9),i8=selected_int_kind(18)
 
