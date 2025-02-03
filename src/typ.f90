@@ -5,7 +5,7 @@ module typ
 ! |                                                                    |
 ! | about                                                              |
 ! | -----                                                              |
-! | Derived typesfor Fortran expedition simulator.                     |
+! | kinds and derived types for Fortran expedition simulator.          |
 ! |                                                                    |
 ! | license                                                            |
 ! | -------                                                            |
@@ -21,9 +21,14 @@ module typ
   private
 
 ! declare public
+  public :: dp, sp, i4, i8
   public :: TYP_actor, TYP_io, TYP_item, TYP_inventory
 
 ! ==== Definitions =================================================== !
+
+! msc
+ integer, parameter :: dp=selected_real_kind(15,307), sp=selected_real_kind(6,37) &
+                    &, i4=selected_int_kind(9),i8=selected_int_kind(18)
 
 ! actor
   type :: TYP_actor
@@ -35,11 +40,11 @@ module typ
      !! att_*   : character attributes
      !! skill_* : skill level in different aspects
      !! can_*   : is the character currently able to do this
-     integer(kind=4)   :: id
+     integer(i4)       :: id
      character(len=20) :: name
-     integer(kind=4)   :: hp, sp
-     integer(kind=4)   :: att_vitality, att_resilience
-     integer(kind=4)   :: skill_forage, skill_scout, skill_guard, skill_heal
+     integer(i4)       :: hp, sp
+     integer(i4)       :: att_vitality, att_resilience
+     integer(i4)       :: skill_forage, skill_scout, skill_guard, skill_heal
      logical           :: can_forage, can_scout, can_guard, can_heal, can_chill, can_explore
   end type TYP_actor
 
@@ -49,7 +54,7 @@ module typ
      !!
      !! id   : item/resource ID
      !! name : item/resource name
-     integer(kind=4)   :: id
+     integer(i4)       :: id
      character(len=20) :: name
   end type TYP_item
 
@@ -60,8 +65,8 @@ module typ
      !! n      : number of item/resource types in inventory
      !! id     : item/resource ID (n)
      !! stock  : amount of each item/resource (n)
-     integer(kind=4)              :: n
-     integer(kind=4), allocatable :: id(:), stock(:)
+     integer(i4)              :: n
+     integer(i4), allocatable :: id(:), stock(:)
   end type TYP_inventory
 
 ! input/output
@@ -70,7 +75,7 @@ module typ
      !!
      !! pUnit : unit for printing messages on screen, typically 6
      !! wUnit : unit for writing output, e.g. 21
-     integer(kind=4) :: pUnit, wUnit
+     integer(i4) :: pUnit, wUnit
   end type TYP_io
 
 end module typ

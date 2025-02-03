@@ -27,6 +27,7 @@ module ini
   public :: io, actor, rsc
 
 ! ==== Declarations
+
 ! game mechanics
   type(TYP_io) :: io
 

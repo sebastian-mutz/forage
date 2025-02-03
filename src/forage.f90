@@ -43,12 +43,12 @@ subroutine game_loop()
   type(TYP_inventory) :: rsc
 
 ! game mechanics
-  logical         :: done=.false., aB
-  integer(kind=4) :: eventCode, aI
-  real(kind=4)    :: aR
+  logical     :: done=.false., aB
+  integer(i4) :: eventCode, aI
+  real(sp)    :: aR
 
 ! general
-  integer(kind=4) :: i
+  integer(i4) :: i
 
 
 ! ==== Instructions
@@ -107,7 +107,7 @@ subroutine start(eventCode)
 ! out: eventCode - code for specific events; to betied to procedures.
 
 ! ==== Declarations
-  integer(kind=4) :: eventCode
+  integer(i4) :: eventCode
 
 ! ==== Instructions
 ! splash
@@ -144,8 +144,8 @@ subroutine event(actor, inventory)
 ! ==== Declarations
   type(TYP_actor)    , intent(in) :: actor(1)
   type(TYP_inventory), intent(in) :: inventory
-  integer(kind=4)                 :: i, a, b
-  real(kind=4)                    :: p
+  integer(i4)                     :: i, a, b
+  real(sp)                        :: p
 
 ! ==== Instructions
 !
@@ -182,9 +182,9 @@ subroutine eventDice(a, b, e)
 ! out: e    - event outcome
 
 ! ==== Declarations
-  integer(kind=4), intent(in)  :: a, b
-  integer(kind=4), intent(out) :: e
-  real(kind=4)                 :: rnd
+  integer(i4), intent(in)  :: a, b
+  integer(i4), intent(out) :: e
+  real(sp)                 :: rnd
 
 ! ==== Instructions
 ! generate a random number (in range 0.0 - 1.0)
@@ -207,9 +207,9 @@ subroutine eventBool(p, e)
 ! other: rnd - generated random number
 
 ! ==== Declarations
-    real(kind=4), intent(in) :: p
-    logical, intent(out)     :: e
-    real(kind=4)             :: rnd
+    real(sp), intent(in) :: p
+    logical, intent(out) :: e
+    real(sp)             :: rnd
 
 ! ==== Instructions
 ! (re-)initialise random number generator (optional)
@@ -231,7 +231,7 @@ subroutine load(rsc)
 ! out:   rsc - inventory of resources as read from file
 
 ! ==== Declarations
-  integer(kind=4)                  :: i
+  integer(i4)                      :: i
   type(TYP_inventory), intent(out) :: rsc
 
 ! ==== Instructions
