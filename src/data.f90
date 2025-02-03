@@ -24,7 +24,7 @@ module data
 ! ==== Declarations
 
 ! game world
-  type(TYP_actor) :: actor(1)
+  type(TYP_actor) :: actor(2)
   type(TYP_item)  :: rsc(4)
 
 ! ==== Data
@@ -46,6 +46,16 @@ module data
        &, actor(1)%skill_guard/2/, actor(1)%skill_heal/2/ &
        &, actor(1)%can_forage/.true./, actor(1)%can_scout/.true./ &
        &, actor(1)%can_guard/.true./, actor(1)%can_heal/.true./ &
-       &, actor(1)%can_chill/.true./, actor(1)%can_explore/.true./
+       &, actor(1)%can_chill/.true./, actor(1)%can_explore/.true./ &
+       &, actor(2)%id/2/ &
+       &, actor(2)%name/"Rough George"/ &
+       &, actor(2)%hp/100/, actor(1)%sp/100/ &
+       &, actor(2)%att_vitality/8/, actor(2)%att_resilience/7/ &
+       &, actor(2)%skill_forage/3/, actor(2)%skill_scout/3/ &
+       &, actor(2)%skill_guard/8/, actor(2)%skill_heal/2/ &
+       &, actor(2)%can_forage/.true./, actor(2)%can_scout/.true./ &
+       &, actor(2)%can_guard/.true./, actor(2)%can_heal/.true./ &
+       &, actor(2)%can_chill/.true./, actor(2)%can_explore/.true./
+
 
 end module data
