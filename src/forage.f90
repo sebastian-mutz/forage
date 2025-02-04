@@ -7,8 +7,8 @@ module forage
 ! | -----                                                              |
 ! | Main procedures (game loop) for Fortran expedition simulator.      |
 ! |                                                                    |
-! | license: MIT                                                       |
-! | author:  Sebastian G. Mutz (sebastian@sebastianmutz.eu)            |
+! | license : MIT                                                      |
+! | author  : Sebastian G. Mutz (sebastian@sebastianmutz.eu)           |
 ! |--------------------------------------------------------------------|
 
 ! load modules
@@ -77,16 +77,17 @@ subroutine game_loop()
      if (eventCode .eq. 2) then
         done = .true.
      elseif (eventCode .eq. 1) then
-        write(io%pUnit, *), "Define p (in range 0.0 - 1.0)"
-        read *, aR
-        call eventBool(aR, aB)
-        if (aB) then
-           print *, "The event occurred!"
-           call eventDice(1, 6, aI)
-           print *, aI
-        else
-           print *, "The event did not occur."
-        end if
+        call event(size(actor), actor, rsc)
+!         write(io%pUnit, *), "Define p (in range 0.0 - 1.0)"
+!         read *, aR
+!         call eventBool(aR, aB)
+!         if (aB) then
+!            print *, "The event occurred!"
+!            call eventDice(1, 6, aI)
+!            print *, aI
+!         else
+!            print *, "The event did not occur."
+!         end if
 
      endif
 
@@ -125,7 +126,7 @@ end subroutine start
 
 ! ==================================================================== !
 ! -------------------------------------------------------------------- !
-subroutine event(actor, inventory)
+subroutine event(n, actor, inventory)
 
 ! ==== Description
 ! Simulates the outcome of events (per day), incl. gain of resources:
@@ -138,31 +139,37 @@ subroutine event(actor, inventory)
 ! 4. Update and return inventory
 
 ! ==== Declarations
-  type(TYP_actor)    , intent(in) :: actor(1)
+  integer(i4)        , intent(in) :: n
+  type(TYP_actor)    , intent(in) :: actor(n)
   type(TYP_inventory), intent(in) :: inventory
-  integer(i4)                     :: i, a, b
+  integer(i4)                     :: i, j, a, b
   real(sp)                        :: p
+  logical                         :: e
 
 ! ==== Instructions
 !
 ! TODO: loop only through actors commanded to carry out action
+! TODO: simply pass to correct inventory slot
 ! foraging
-  i=1
-! probability of success (based on skill; max 10)
-  p = float(actor(i)%skill_forage)/10
-!
-! calculate possible range of gain based on skill
-  select case (actor(i)%skill_forage)
-     case (1:3)
-        a=1
-        b=3
-     case (4:6)
-        a=3
-        b=5
-     case (7:10)
-        a=5
-        b=8
-  end select
+  do i=1,n
+     ! probability of success (based on skill; max 10)
+     p = float(actor(i)%skill_forage)/10
+     ! calculate possible range of gain based on skill
+     select case (actor(i)%skill_forage)
+        case (1:3);  a=1; b=3
+        case (4:6);  a=3; b=5
+        case (7:10); a=5; b=8
+     end select
+     ! determine if successful
+     call eventBool(p,e)
+     ! if successful, determine extent of success
+     if (e) then
+        call eventDice(a, b, j)
+        write(io%pUnit, *), trim(actor(i)%name), " was successful and gained", j
+     else
+        write(io%pUnit, *), trim(actor(i)%name), " was unsuccessful"
+     endif
+  enddo
 
 end subroutine event
 

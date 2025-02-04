@@ -7,8 +7,8 @@ module typ
 ! | -----                                                              |
 ! | Kinds and derived types for Fortran expedition simulator.          |
 ! |                                                                    |
-! | license: MIT                                                       |
-! | author:  Sebastian G. Mutz (sebastian@sebastianmutz.eu)            |
+! | license : MIT                                                      |
+! | author  : Sebastian G. Mutz (sebastian@sebastianmutz.eu)           |
 ! |--------------------------------------------------------------------|
 
 ! basic options

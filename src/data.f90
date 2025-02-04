@@ -7,8 +7,8 @@ module data
 ! | -----                                                              |
 ! | Data module; defines some key game data.                           |
 ! |                                                                    |
-! | license: MIT                                                       |
-! | author:  Sebastian G. Mutz (sebastian@sebastianmutz.eu)            |
+! | license : MIT                                                      |
+! | author  : Sebastian G. Mutz (sebastian@sebastianmutz.eu)           |
 ! |--------------------------------------------------------------------|
 !
 ! load modules
