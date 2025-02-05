@@ -150,10 +150,13 @@ subroutine event(n, actor, inventory)
 !
 ! TODO: loop only through actors commanded to carry out action
 ! TODO: simply pass to correct inventory slot
-! foraging
+
   do i=1,n
+
+  ! foraging
+  if (actor(i)%can_forage) then
      ! probability of success (based on skill; max 10)
-     p = float(actor(i)%skill_forage)/10
+     p = float(actor(i)%skill_forage)/10.0
      ! calculate possible range of gain based on skill
      select case (actor(i)%skill_forage)
         case (1:3);  a=1; b=3
@@ -165,10 +168,75 @@ subroutine event(n, actor, inventory)
      ! if successful, determine extent of success
      if (e) then
         call eventDice(a, b, j)
-        write(io%pUnit, *), trim(actor(i)%name), " was successful and gained", j
+        write(io%pUnit, *), "Foraging: ", trim(actor(i)%name), " was successful and gained", j, "food"
      else
-        write(io%pUnit, *), trim(actor(i)%name), " was unsuccessful"
+        write(io%pUnit, *), "Foraging: ", trim(actor(i)%name), " was unsuccessful"
      endif
+  endif
+
+  ! scout
+  if (actor(i)%can_scout) then
+     ! probability of success (based on skill; max 10)
+     p = float(actor(i)%skill_scout)/10.0
+     ! calculate possible range of gain based on skill
+     select case (actor(i)%skill_scout)
+        case (1:3);  a=1; b=3
+        case (4:6);  a=3; b=5
+        case (7:10); a=5; b=8
+     end select
+     ! determine if successful
+     call eventBool(p,e)
+     ! if successful, determine extent of success
+     if (e) then
+        call eventDice(a, b, j)
+        write(io%pUnit, *), "Scouting: ", trim(actor(i)%name), " was successful and gained", j, "treasure"
+     else
+        write(io%pUnit, *), "Scouting: ", trim(actor(i)%name), " was unsuccessful"
+     endif
+  endif
+
+  ! guard
+  if (actor(i)%can_guard) then
+     ! probability of success (based on skill; max 10)
+     p = float(actor(i)%skill_guard)/10.0
+     ! calculate possible range of gain based on skill
+     select case (actor(i)%skill_guard)
+        case (1:3);  a=1; b=3
+        case (4:6);  a=3; b=5
+        case (7:10); a=5; b=8
+     end select
+     ! determine if successful
+     call eventBool(p,e)
+     ! if successful, determine extent of success
+     if (e) then
+        call eventDice(a, b, j)
+        write(io%pUnit, *), "Guarding: ", trim(actor(i)%name), " was successful", j
+     else
+        write(io%pUnit, *), "Guarding: ", trim(actor(i)%name), " was unsuccessful"
+     endif
+  endif
+
+  ! heal
+  if (actor(i)%can_heal) then
+     ! probability of success (based on skill; max 10)
+     p = float(actor(i)%skill_heal)/10.0
+     ! calculate possible range of gain based on skill
+     select case (actor(i)%skill_heal)
+        case (1:3);  a=1; b=3
+        case (4:6);  a=3; b=5
+        case (7:10); a=5; b=8
+     end select
+     ! determine if successful
+     call eventBool(p,e)
+     ! if successful, determine extent of success
+     if (e) then
+        call eventDice(a, b, j)
+        write(io%pUnit, *), "Healing: ", trim(actor(i)%name), " was successful and healed", j
+     else
+        write(io%pUnit, *), "Healing: ", trim(actor(i)%name), " was unsuccessful"
+     endif
+  endif
+
   enddo
 
 end subroutine event
