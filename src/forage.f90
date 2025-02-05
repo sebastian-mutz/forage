@@ -39,9 +39,11 @@ subroutine game_loop()
   type(TYP_inventory) :: inv
 
 ! game mechanics
-  logical     :: done=.false., aB
-  integer(i4) :: eventCode, aI
-  real(sp)    :: aR
+  logical           :: done=.false., aB
+  integer(i4)       :: eventCode, aI
+  real(sp)          :: aR
+  character(len=5) :: blue = char(27) // '[34m'
+  character(len=5) :: reset = char(27) // '[0m'
 
 ! general
   integer(i4) :: i
@@ -57,28 +59,21 @@ subroutine game_loop()
 
 ! determine action
   select case (eventCode)
-     case (1)
-        write(io%pUnit, *), "> Loading game ..."
-     case (2)
-        write(io%pUnit, *), "> Starting new game ..."
-     case (3)
-        write(io%pUnit, *), "> Exiting ..."
+     case (1); write(io%pUnit, *), "> Loading game ..."
+     case (2); write(io%pUnit, *), "> Starting new game ..."
+     case (3); done = .true.; write(io%pUnit, *)
   end select
 
 ! game loop
   do while (.not. done)
-     write(io%pUnit, *), "> Waiting for user input (1=play, 2=view inventory, 3=view team, 4=exit)"
+     write(io%pUnit, *), "> Waiting for user input ", blue, "(1=play, 2=view inventory, 3=view team, 4=exit)", reset
      read *, eventCode
-     if (eventCode .eq. 4) then
-        done = .true.
-     elseif (eventCode .eq. 3) then
-        call viewTeam(size(actor), actor)
-     elseif (eventCode .eq. 2) then
-        call viewInventory(inv, rsc)
-     elseif (eventCode .eq. 1) then
-        call event(size(actor), actor, inv)
-     endif
-
+     select case (eventCode)
+        case (4); done = .true.
+        case (3); call viewTeam(size(actor), actor)
+        case (2); call viewInventory(inv, rsc)
+        case (1); call event(size(actor), actor, inv)
+     end select
   enddo
 
 end subroutine game_loop
@@ -101,13 +96,13 @@ subroutine start(eventCode)
   write(io%pUnit, *), "// FORage - Expedition Simulator //"
   write(io%pUnit, *), "///////////////////////////////////"
   write(io%pUnit, *), ""
-!   write(io%pUnit, *), "1. Continue game."
-!   write(io%pUnit, *), "2. New game (overwrites progress)."
-!   write(io%pUnit, *), "3. Exit."
+  write(io%pUnit, *), "1. Continue game."
+  write(io%pUnit, *), "2. New game (overwrites progress)."
+  write(io%pUnit, *), "3. Exit."
 
 ! get input
-!   read *, eventCode
-!   write(io%pUnit, *), ""
+  read *, eventCode
+  write(io%pUnit, *), ""
 
 end subroutine start
 
@@ -123,16 +118,18 @@ subroutine viewInventory(inv, rsc)
   type(TYP_inventory), intent(in) :: inv
   type(TYP_item)     , intent(in) :: rsc(4)
   integer(i4)                     :: i
+  character(len=5) :: cyan = char(27) // '[36m'
+  character(len=5) :: reset = char(27) // '[0m'
 
 ! ==== Instructions
 ! splash
-  write(io%pUnit, *), ""
+  write(io%pUnit, *), cyan, ""
   write(io%pUnit, *), "// Inventory //"
   write(io%pUnit, *), "==============="
   do i=1,inv%n
      write(io%pUnit, '(a15,i5)'), rsc(((inv%id(i))))%name, inv%stock(i)
   enddo
-  write(io%pUnit, *), ""
+  write(io%pUnit, *), "", reset
 
 end subroutine viewInventory
 
@@ -148,25 +145,20 @@ subroutine viewTeam(n, actor)
   integer(i4)    , intent(in) :: n
   type(TYP_actor), intent(in) :: actor(n)
   integer(i4)                 :: i
-
-
-     integer(i4)       :: id
-     character(len=20) :: name
-     integer(i4)       :: hp, sp
-     integer(i4)       :: att_vitality, att_resilience
-     integer(i4)       :: skill_forage, skill_scout, skill_guard, skill_heal
-     logical           :: can_forage, can_scout, can_guard, can_heal, can_chill
+  character(len=5) :: cyan = char(27) // '[36m'
+  character(len=5) :: reset = char(27) // '[0m'
 
 ! ==== Instructions
 ! splash
-  write(io%pUnit, *), ""
+  write(io%pUnit, *), cyan, ""
   write(io%pUnit, *), "// Expedition Members //"
   write(io%pUnit, *), "========================"
   do i=1,n
      write(io%pUnit, '(a15,a5,i2,a1)'), actor(i)%name, "(ID: ", actor(i)%id, ")"
      write(io%pUnit, '(a10,i3,a10,i3)'), "Health: ", actor(i)%hp, "Sanity:", actor(i)%sp
-     write(io%pUnit, *), ""
+     write(io%pUnit, *), "------------------------"
   enddo
+     write(io%pUnit, *), "", reset
 
 end subroutine viewTeam
 
