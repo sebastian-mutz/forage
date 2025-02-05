@@ -36,7 +36,7 @@ subroutine game_loop()
 
 ! ==== Declarations
 ! game world
-  type(TYP_inventory) :: rsc
+  type(TYP_inventory) :: inv
 
 ! game mechanics
   logical     :: done=.false., aB
@@ -46,7 +46,6 @@ subroutine game_loop()
 ! general
   integer(i4) :: i
 
-
 ! ==== Instructions
 ! initialisation
 
@@ -54,11 +53,7 @@ subroutine game_loop()
   call start(eventCode)
 
 ! load game state
-  call load(rsc)
-  print*, rsc%n
-  do i=1,rsc%n
-     write(io%pUnit, *), rsc%id(i), rsc%stock(i)
-  enddo
+  call load(inv)
 
 ! determine action
   select case (eventCode)
@@ -72,23 +67,16 @@ subroutine game_loop()
 
 ! game loop
   do while (.not. done)
-     write(io%pUnit, *), "> Waiting for user input (1=play, 2=exit)"
+     write(io%pUnit, *), "> Waiting for user input (1=play, 2=view inventory, 3=view team, 4=exit)"
      read *, eventCode
-     if (eventCode .eq. 2) then
+     if (eventCode .eq. 4) then
         done = .true.
+     elseif (eventCode .eq. 3) then
+        call viewTeam(size(actor), actor)
+     elseif (eventCode .eq. 2) then
+        call viewInventory(inv, rsc)
      elseif (eventCode .eq. 1) then
-        call event(size(actor), actor, rsc)
-!         write(io%pUnit, *), "Define p (in range 0.0 - 1.0)"
-!         read *, aR
-!         call eventBool(aR, aB)
-!         if (aB) then
-!            print *, "The event occurred!"
-!            call eventDice(1, 6, aI)
-!            print *, aI
-!         else
-!            print *, "The event did not occur."
-!         end if
-
+        call event(size(actor), actor, inv)
      endif
 
   enddo
@@ -126,7 +114,65 @@ end subroutine start
 
 ! ==================================================================== !
 ! -------------------------------------------------------------------- !
-subroutine event(n, actor, inventory)
+subroutine viewInventory(inv, rsc)
+
+! ==== Description
+! out: eventCode - code for specific events; to betied to procedures.
+
+! ==== Declarations
+  type(TYP_inventory), intent(in) :: inv
+  type(TYP_item)     , intent(in) :: rsc(4)
+  integer(i4)                     :: i
+
+! ==== Instructions
+! splash
+  write(io%pUnit, *), ""
+  write(io%pUnit, *), "// Inventory //"
+  write(io%pUnit, *), "==============="
+  do i=1,inv%n
+     write(io%pUnit, '(a15,i5)'), rsc(((inv%id(i))))%name, inv%stock(i)
+  enddo
+  write(io%pUnit, *), ""
+
+end subroutine viewInventory
+
+
+! ==================================================================== !
+! -------------------------------------------------------------------- !
+subroutine viewTeam(n, actor)
+
+! ==== Description
+! out: eventCode - code for specific events; to betied to procedures.
+
+! ==== Declarations
+  integer(i4)    , intent(in) :: n
+  type(TYP_actor), intent(in) :: actor(n)
+  integer(i4)                 :: i
+
+
+     integer(i4)       :: id
+     character(len=20) :: name
+     integer(i4)       :: hp, sp
+     integer(i4)       :: att_vitality, att_resilience
+     integer(i4)       :: skill_forage, skill_scout, skill_guard, skill_heal
+     logical           :: can_forage, can_scout, can_guard, can_heal, can_chill
+
+! ==== Instructions
+! splash
+  write(io%pUnit, *), ""
+  write(io%pUnit, *), "// Expedition Members //"
+  write(io%pUnit, *), "========================"
+  do i=1,n
+     write(io%pUnit, '(a15,a5,i2,a1)'), actor(i)%name, "(ID: ", actor(i)%id, ")"
+     write(io%pUnit, '(a10,i3,a10,i3)'), "Health: ", actor(i)%hp, "Sanity:", actor(i)%sp
+     write(io%pUnit, *), ""
+  enddo
+
+end subroutine viewTeam
+
+! ==================================================================== !
+! -------------------------------------------------------------------- !
+subroutine event(n, actor, inv)
 
 ! ==== Description
 ! Simulates the outcome of events (per day), incl. gain of resources:
@@ -136,15 +182,15 @@ subroutine event(n, actor, inventory)
 ! 3. If successful, uses actor skills to determine dice to be rolled
 !    (i.e. the value range) to determine the extent of the success
 !    (e.g., how much food was gained from foraging).
-! 4. Update and return inventory
+! 4. Update and return inventory (inv)
 
 ! ==== Declarations
   integer(i4)        , intent(in) :: n
   type(TYP_actor)    , intent(in) :: actor(n)
-  type(TYP_inventory), intent(in) :: inventory
+  type(TYP_inventory), intent(in) :: inv
   integer(i4)                     :: i, j, a, b
   real(sp)                        :: p
-  logical                         :: e
+  logical                         :: e, f
 
 ! ==== Instructions
 !
@@ -153,41 +199,46 @@ subroutine event(n, actor, inventory)
 
   do i=1,n
 
-  ! foraging
+  ! foraging check
   if (actor(i)%can_forage) then
-     ! probability of success (based on skill; max 10)
+     ! probability of success (based on skill; max 9) and determine if successful
      p = float(actor(i)%skill_forage)/10.0
-     ! calculate possible range of gain based on skill
-     select case (actor(i)%skill_forage)
-        case (1:3);  a=1; b=3
-        case (4:6);  a=3; b=5
-        case (7:10); a=5; b=8
-     end select
-     ! determine if successful
      call eventBool(p,e)
      ! if successful, determine extent of success
      if (e) then
+        ! calculate possible range of gain based on skill
+        select case (actor(i)%skill_forage)
+           case (1:3);  a=1; b=4
+           case (4:6);  a=1; b=6
+           case (7:9);  a=1; b=12
+        end select
         call eventDice(a, b, j)
-        write(io%pUnit, *), "Foraging: ", trim(actor(i)%name), " was successful and gained", j, "food"
+        ! determine if food (65% chance) or medicine (35% change)
+        call eventBool(0.65,f)
+        write(io%pUnit, *), "Foraging: ", trim(actor(i)%name), " was successful"
+        if (f) then
+           write(io%pUnit, *), j, "food"
+        else
+           write(io%pUnit, *), j, "medicine"
+        endif
      else
         write(io%pUnit, *), "Foraging: ", trim(actor(i)%name), " was unsuccessful"
      endif
   endif
 
-  ! scout
+  ! scouting check
   if (actor(i)%can_scout) then
-     ! probability of success (based on skill; max 10)
+     ! probability of success (based on skill; max 9) and determine if successful
      p = float(actor(i)%skill_scout)/10.0
-     ! calculate possible range of gain based on skill
-     select case (actor(i)%skill_scout)
-        case (1:3);  a=1; b=3
-        case (4:6);  a=3; b=5
-        case (7:10); a=5; b=8
-     end select
-     ! determine if successful
      call eventBool(p,e)
      ! if successful, determine extent of success
      if (e) then
+        ! calculate possible range of gain based on skill
+        select case (actor(i)%skill_scout)
+           case (1:3);  a=1; b=6
+           case (4:6);  a=1; b=12
+           case (7:9);  a=1; b=20
+        end select
         call eventDice(a, b, j)
         write(io%pUnit, *), "Scouting: ", trim(actor(i)%name), " was successful and gained", j, "treasure"
      else
@@ -195,45 +246,33 @@ subroutine event(n, actor, inventory)
      endif
   endif
 
-  ! guard
+  ! guarding check
   if (actor(i)%can_guard) then
-     ! probability of success (based on skill; max 10)
+     ! probability of success (based on skill; max 9) and determine if successful
      p = float(actor(i)%skill_guard)/10.0
-     ! calculate possible range of gain based on skill
-     select case (actor(i)%skill_guard)
-        case (1:3);  a=1; b=3
-        case (4:6);  a=3; b=5
-        case (7:10); a=5; b=8
-     end select
-     ! determine if successful
      call eventBool(p,e)
-     ! if successful, determine extent of success
-     if (e) then
+     ! if not successful, determine extent of success
+     if (.not. e) then
+     ! calculate possible range of losses (hp or material) based on skill
+        select case (actor(i)%skill_guard)
+           case (1:3);  a=1; b=20
+           case (4:6);  a=1; b=12
+           case (7:9);  a=1; b=6
+        end select
         call eventDice(a, b, j)
-        write(io%pUnit, *), "Guarding: ", trim(actor(i)%name), " was successful", j
+        ! determine what is stolen
+        call eventDice(1, 4, a)
+        select case (a)
+           case (1); write(io%pUnit, *), "Guarding: unsuccessful. ", j, "food stolen"
+           case (2); write(io%pUnit, *), "Guarding: unsuccessful. ", j, "medicine stolen"
+           case (3); write(io%pUnit, *), "Guarding: unsuccessful. ", j, "treasure stolen"
+           case (4)
+              ! determine who was hurt
+              call eventDice(1, n, b)
+              write(io%pUnit, *), "Guarding: unsuccessful. ", j, "damage taken (", trim(actor(b)%name), ")"
+        end select
      else
-        write(io%pUnit, *), "Guarding: ", trim(actor(i)%name), " was unsuccessful"
-     endif
-  endif
-
-  ! heal
-  if (actor(i)%can_heal) then
-     ! probability of success (based on skill; max 10)
-     p = float(actor(i)%skill_heal)/10.0
-     ! calculate possible range of gain based on skill
-     select case (actor(i)%skill_heal)
-        case (1:3);  a=1; b=3
-        case (4:6);  a=3; b=5
-        case (7:10); a=5; b=8
-     end select
-     ! determine if successful
-     call eventBool(p,e)
-     ! if successful, determine extent of success
-     if (e) then
-        call eventDice(a, b, j)
-        write(io%pUnit, *), "Healing: ", trim(actor(i)%name), " was successful and healed", j
-     else
-        write(io%pUnit, *), "Healing: ", trim(actor(i)%name), " was unsuccessful"
+        write(io%pUnit, *), "Guarding: was successful"
      endif
   endif
 
@@ -317,8 +356,9 @@ subroutine load(rsc)
      ! read inventory
      do i=2,rsc%n+1
         read(io%wUnit,*) rsc%id(i-1), rsc%stock(i-1)
-        print*, i, rsc%n
      enddo
+
+    ! TODO: read actor selection and their states (hp, etc.)
 
   close(io%wUnit)
 

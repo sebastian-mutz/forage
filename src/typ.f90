@@ -40,7 +40,7 @@ module typ
      integer(i4)       :: hp, sp
      integer(i4)       :: att_vitality, att_resilience
      integer(i4)       :: skill_forage, skill_scout, skill_guard, skill_heal
-     logical           :: can_forage, can_scout, can_guard, can_heal, can_chill, can_explore
+     logical           :: can_forage, can_scout, can_guard, can_heal, can_chill
   end type TYP_actor
 
 ! items/resources
