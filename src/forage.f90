@@ -42,8 +42,8 @@ subroutine game_loop()
   logical           :: done=.false., aB
   integer(i4)       :: eventCode, aI
   real(sp)          :: aR
-  character(len=5) :: blue = char(27) // '[34m'
-  character(len=5) :: reset = char(27) // '[0m'
+  character(len=5)  :: blue = char(27) // '[34m'
+  character(len=5)  :: reset = char(27) // '[0m'
 
 ! general
   integer(i4) :: i
@@ -61,7 +61,7 @@ subroutine game_loop()
   select case (eventCode)
      case (1); write(io%pUnit, *), "> Loading game ..."
      case (2); write(io%pUnit, *), "> Starting new game ..."
-     case (3); done = .true.; write(io%pUnit, *)
+     case (3); done = .true.
   end select
 
 ! game loop
@@ -118,8 +118,8 @@ subroutine viewInventory(inv, rsc)
   type(TYP_inventory), intent(in) :: inv
   type(TYP_item)     , intent(in) :: rsc(4)
   integer(i4)                     :: i
-  character(len=5) :: cyan = char(27) // '[36m'
-  character(len=5) :: reset = char(27) // '[0m'
+  character(len=5)                :: cyan = char(27) // '[36m'
+  character(len=5)                :: reset = char(27) // '[0m'
 
 ! ==== Instructions
 ! splash
@@ -145,8 +145,8 @@ subroutine viewTeam(n, actor)
   integer(i4)    , intent(in) :: n
   type(TYP_actor), intent(in) :: actor(n)
   integer(i4)                 :: i
-  character(len=5) :: cyan = char(27) // '[36m'
-  character(len=5) :: reset = char(27) // '[0m'
+  character(len=5)            :: cyan = char(27) // '[36m'
+  character(len=5)            :: reset = char(27) // '[0m'
 
 ! ==== Instructions
 ! splash
