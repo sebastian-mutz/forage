@@ -155,7 +155,7 @@ subroutine viewTeam(n, actor)
   write(io%pUnit, *), "========================"
   do i=1,n
      write(io%pUnit, '(a15,a5,i2,a1)'), actor(i)%name, "(ID: ", actor(i)%id, ")"
-     write(io%pUnit, '(a10,i3,a10,i3)'), "Health: ", actor(i)%hp, "Sanity:", actor(i)%sp
+     write(io%pUnit, '(a10,i3,a10,i3)'), "Health: ", actor(i)%health, "Sanity:", actor(i)%sanity
      write(io%pUnit, *), "------------------------"
   enddo
      write(io%pUnit, *), "", reset
@@ -186,89 +186,89 @@ subroutine event(n, actor, inv)
 
 ! ==== Instructions
 !
-! TODO: loop only through actors commanded to carry out action
-! TODO: simply pass to correct inventory slot
-
-  do i=1,n
-
-  ! foraging check
-  if (actor(i)%can_forage) then
-     ! probability of success (based on skill; max 9) and determine if successful
-     p = float(actor(i)%skill_forage)/10.0
-     call eventBool(p,e)
-     ! if successful, determine extent of success
-     if (e) then
-        ! calculate possible range of gain based on skill
-        select case (actor(i)%skill_forage)
-           case (1:3);  a=1; b=4
-           case (4:6);  a=1; b=6
-           case (7:9);  a=1; b=12
-        end select
-        call eventDice(a, b, j)
-        ! determine if food (65% chance) or medicine (35% change)
-        call eventBool(0.65,f)
-        write(io%pUnit, *), "Foraging: ", trim(actor(i)%name), " was successful"
-        if (f) then
-           write(io%pUnit, *), j, "food"
-        else
-           write(io%pUnit, *), j, "medicine"
-        endif
-     else
-        write(io%pUnit, *), "Foraging: ", trim(actor(i)%name), " was unsuccessful"
-     endif
-  endif
-
-  ! scouting check
-  if (actor(i)%can_scout) then
-     ! probability of success (based on skill; max 9) and determine if successful
-     p = float(actor(i)%skill_scout)/10.0
-     call eventBool(p,e)
-     ! if successful, determine extent of success
-     if (e) then
-        ! calculate possible range of gain based on skill
-        select case (actor(i)%skill_scout)
-           case (1:3);  a=1; b=6
-           case (4:6);  a=1; b=12
-           case (7:9);  a=1; b=20
-        end select
-        call eventDice(a, b, j)
-        write(io%pUnit, *), "Scouting: ", trim(actor(i)%name), " was successful and gained", j, "treasure"
-     else
-        write(io%pUnit, *), "Scouting: ", trim(actor(i)%name), " was unsuccessful"
-     endif
-  endif
-
-  ! guarding check
-  if (actor(i)%can_guard) then
-     ! probability of success (based on skill; max 9) and determine if successful
-     p = float(actor(i)%skill_guard)/10.0
-     call eventBool(p,e)
-     ! if not successful, determine extent of success
-     if (.not. e) then
-     ! calculate possible range of losses (hp or material) based on skill
-        select case (actor(i)%skill_guard)
-           case (1:3);  a=1; b=20
-           case (4:6);  a=1; b=12
-           case (7:9);  a=1; b=6
-        end select
-        call eventDice(a, b, j)
-        ! determine what is stolen
-        call eventDice(1, 4, a)
-        select case (a)
-           case (1); write(io%pUnit, *), "Guarding: unsuccessful. ", j, "food stolen"
-           case (2); write(io%pUnit, *), "Guarding: unsuccessful. ", j, "medicine stolen"
-           case (3); write(io%pUnit, *), "Guarding: unsuccessful. ", j, "treasure stolen"
-           case (4)
-              ! determine who was hurt
-              call eventDice(1, n, b)
-              write(io%pUnit, *), "Guarding: unsuccessful. ", j, "damage taken (", trim(actor(b)%name), ")"
-        end select
-     else
-        write(io%pUnit, *), "Guarding: was successful"
-     endif
-  endif
-
-  enddo
+! ! TODO: loop only through actors commanded to carry out action
+! ! TODO: simply pass to correct inventory slot
+!
+!   do i=1,n
+!
+!   ! foraging check
+!   if (actor(i)%can_forage) then
+!      ! probability of success (based on skill; max 9) and determine if successful
+!      p = float(actor(i)%skill_forage)/10.0
+!      call eventBool(p,e)
+!      ! if successful, determine extent of success
+!      if (e) then
+!         ! calculate possible range of gain based on skill
+!         select case (actor(i)%skill_forage)
+!            case (1:3);  a=1; b=4
+!            case (4:6);  a=1; b=6
+!            case (7:9);  a=1; b=12
+!         end select
+!         call eventDice(a, b, j)
+!         ! determine if food (65% chance) or medicine (35% change)
+!         call eventBool(0.65,f)
+!         write(io%pUnit, *), "Foraging: ", trim(actor(i)%name), " was successful"
+!         if (f) then
+!            write(io%pUnit, *), j, "food"
+!         else
+!            write(io%pUnit, *), j, "medicine"
+!         endif
+!      else
+!         write(io%pUnit, *), "Foraging: ", trim(actor(i)%name), " was unsuccessful"
+!      endif
+!   endif
+!
+!   ! scouting check
+!   if (actor(i)%can_scout) then
+!      ! probability of success (based on skill; max 9) and determine if successful
+!      p = float(actor(i)%skill_scout)/10.0
+!      call eventBool(p,e)
+!      ! if successful, determine extent of success
+!      if (e) then
+!         ! calculate possible range of gain based on skill
+!         select case (actor(i)%skill_scout)
+!            case (1:3);  a=1; b=6
+!            case (4:6);  a=1; b=12
+!            case (7:9);  a=1; b=20
+!         end select
+!         call eventDice(a, b, j)
+!         write(io%pUnit, *), "Scouting: ", trim(actor(i)%name), " was successful and gained", j, "treasure"
+!      else
+!         write(io%pUnit, *), "Scouting: ", trim(actor(i)%name), " was unsuccessful"
+!      endif
+!   endif
+!
+!   ! guarding check
+!   if (actor(i)%can_guard) then
+!      ! probability of success (based on skill; max 9) and determine if successful
+!      p = float(actor(i)%skill_guard)/10.0
+!      call eventBool(p,e)
+!      ! if not successful, determine extent of success
+!      if (.not. e) then
+!      ! calculate possible range of losses (hp or material) based on skill
+!         select case (actor(i)%skill_guard)
+!            case (1:3);  a=1; b=20
+!            case (4:6);  a=1; b=12
+!            case (7:9);  a=1; b=6
+!         end select
+!         call eventDice(a, b, j)
+!         ! determine what is stolen
+!         call eventDice(1, 4, a)
+!         select case (a)
+!            case (1); write(io%pUnit, *), "Guarding: unsuccessful. ", j, "food stolen"
+!            case (2); write(io%pUnit, *), "Guarding: unsuccessful. ", j, "medicine stolen"
+!            case (3); write(io%pUnit, *), "Guarding: unsuccessful. ", j, "treasure stolen"
+!            case (4)
+!               ! determine who was hurt
+!               call eventDice(1, n, b)
+!               write(io%pUnit, *), "Guarding: unsuccessful. ", j, "damage taken (", trim(actor(b)%name), ")"
+!         end select
+!      else
+!         write(io%pUnit, *), "Guarding: was successful"
+!      endif
+!   endif
+!
+!   enddo
 
 end subroutine event
 

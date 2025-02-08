@@ -17,13 +17,25 @@ module typ
 
 ! declare public
   public :: dp, sp, i4, i8
-  public :: TYP_actor, TYP_io, TYP_item, TYP_inventory
+  public :: TYP_skill, TYP_actor, TYP_io, TYP_item, TYP_inventory
 
 ! ==== Definitions =================================================== !
 
 ! define kinds (used consistently and explicitly in derived types and entire project)
  integer, parameter :: dp=selected_real_kind(15,307), sp=selected_real_kind(6,37) &
                     &, i4=selected_int_kind(9),i8=selected_int_kind(18)
+
+! skills
+  type :: TYP_skill
+     !! Derived type for actors/playable characters.
+     !!
+     !! id      : actor ID
+     !! name    : skill name
+     !! dice    : dice number range (min & max) for each of the 5 skill levels
+     integer(i4)       :: id
+     character(len=20) :: name
+     integer(i4)       :: dice(5,2)
+  end type TYP_skill
 
 ! actor
   type :: TYP_actor
@@ -33,14 +45,13 @@ module typ
      !! name    : actor name
      !! hp, sp  : hit points (health), sanity points (morale) - can be modified
      !! att_*   : character attributes
-     !! skill_* : skill level in different aspects
-     !! can_*   : is the character currently able to do this
+     !! skill   : levels in each of the 4 different skills
+     !! action  : current action index
      integer(i4)       :: id
      character(len=20) :: name
-     integer(i4)       :: hp, sp
+     integer(i4)       :: health, sanity
      integer(i4)       :: att_vitality, att_resilience
-     integer(i4)       :: skill_forage, skill_scout, skill_guard, skill_heal
-     logical           :: can_forage, can_scout, can_guard, can_heal, can_chill
+     integer(i4)       :: skill(4), action
   end type TYP_actor
 
 ! items/resources
