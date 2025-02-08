@@ -112,6 +112,7 @@ subroutine actions(na, actor, ns, skill, inv)
 ! ==== Instructions
 ! TODO: simply pass to correct inventory slot
 ! TODO: revise/simplify resource/inventory system
+! TODO: only calculations here; dsp routine for display
 
   write(io%pUnit, *), cyan, ""
   write(io%pUnit, *), "// End-of-Day Results //"
