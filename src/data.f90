@@ -46,25 +46,25 @@ module data
        &, skill(1)%dice(2,1)/1/, skill(1)%dice(2,2)/4/ &
        &, skill(1)%dice(3,1)/1/, skill(1)%dice(3,2)/6/ &
        &, skill(1)%dice(4,1)/1/, skill(1)%dice(4,2)/6/ &
-       &, skill(1)%dice(4,1)/1/, skill(1)%dice(4,2)/12/ &
+       &, skill(1)%dice(5,1)/1/, skill(1)%dice(5,2)/12/ &
        &, skill(2)%id/2/, skill(2)%name/"Scout"/ &
        &, skill(2)%dice(1,1)/1/, skill(2)%dice(1,2)/6/ &
        &, skill(2)%dice(2,1)/1/, skill(2)%dice(2,2)/6/ &
        &, skill(2)%dice(3,1)/1/, skill(2)%dice(3,2)/12/ &
        &, skill(2)%dice(4,1)/1/, skill(2)%dice(4,2)/12/ &
-       &, skill(2)%dice(4,1)/1/, skill(2)%dice(4,2)/20/ &
+       &, skill(2)%dice(5,1)/1/, skill(2)%dice(5,2)/20/ &
        &  skill(3)%id/3/, skill(3)%name/"Guard"/ &
        &, skill(3)%dice(1,1)/1/, skill(3)%dice(1,2)/20/ &
        &, skill(3)%dice(2,1)/1/, skill(3)%dice(2,2)/20/ &
        &, skill(3)%dice(3,1)/1/, skill(3)%dice(3,2)/12/ &
        &, skill(3)%dice(4,1)/1/, skill(3)%dice(4,2)/12/ &
-       &, skill(3)%dice(4,1)/1/, skill(3)%dice(4,2)/6/ &
+       &, skill(3)%dice(5,1)/1/, skill(3)%dice(5,2)/6/ &
        &, skill(4)%id/4/, skill(4)%name/"Heal"/ &
        &, skill(4)%dice(1,1)/1/, skill(4)%dice(1,2)/4/ &
        &, skill(4)%dice(2,1)/1/, skill(4)%dice(2,2)/6/ &
        &, skill(4)%dice(3,1)/1/, skill(4)%dice(3,2)/8/ &
        &, skill(4)%dice(4,1)/1/, skill(4)%dice(4,2)/12/ &
-       &, skill(4)%dice(4,1)/1/, skill(4)%dice(4,2)/20/
+       &, skill(4)%dice(5,1)/1/, skill(4)%dice(5,2)/20/
 
   data actor(1)%id/1/             , actor(1)%name/"Holde Knirbe"/ &
        &, actor(1)%health/100/    , actor(1)%sanity/100/ &
