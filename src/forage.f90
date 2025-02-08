@@ -100,44 +100,84 @@ subroutine actions(na, actor, ns, skill, inv)
   type(TYP_actor)    , intent(in) :: actor(na)
   type(TYP_skill)    , intent(in) :: skill(ns)
   type(TYP_inventory), intent(in) :: inv
-  integer(i4)                     :: i, j, a
+  integer(i4)                     :: i, j, a, b
   real(sp)                        :: p
   logical                         :: e
+  character(len=5)                :: cyan = char(27) // '[36m'
+  character(len=5)                :: purple = char(27) // '[35m'
+  character(len=5)                :: red = char(27) // '[31m'
+  character(len=5)                :: green = char(27) // '[32m'
+  character(len=5)                :: reset = char(27) // '[0m'
 
 ! ==== Instructions
 ! TODO: simply pass to correct inventory slot
+! TODO: revise/simplify resource/inventory system
 
-  do j=1,ns    ! action/skill loop
-     write(io%pUnit, *), ""
-     write(io%pUnit, *), "Action: ", skill(j)%name
-     do i=1,na ! actor loop
+  write(io%pUnit, *), cyan, ""
+  write(io%pUnit, *), "// End-of-Day Results //"
+  write(io%pUnit, *), "========================", reset
 
-     if (actor(i)%action .eq. j) then
+! action/skill loop
+  do j=1,ns
+     write(io%pUnit, *) ""
+     write(io%pUnit, *) purple, skill(j)%name, reset
 
-        ! get probability of success (max skill=5, max p=0.9) and determine if successful
-        p = float(actor(i)%skill(j))/5.555
-        call eventBool(p,e)
+     ! actor loop
+     do i=1,na
 
-        ! if successful, determine extent of success
-        if (e) then
-           if (skill(j)%name .eq. "Guard") then
-              a=0
+        ! check if actor tasked with action
+        if (actor(i)%action .eq. j) then
+
+           ! get probability of success (max skill=5, max p=0.9) and determine if successful
+           p = float(actor(i)%skill(j))/5.555
+           call eventBool(p,e)
+
+           ! if determine extent of success/failure
+           call eventDice(skill(j)%dice(actor(i)%skill(j),1), skill(j)%dice(actor(i)%skill(j),2), a)
+           if (e) then
+              if (skill(j)%name .eq. "Guard") a=0
+              write(io%pUnit, *) trim(actor(i)%name), " was successful."
            else
-              call eventDice(skill(j)%dice(actor(i)%skill(j),1), skill(j)%dice(actor(i)%skill(j),2), a)
+              if (skill(j)%name .ne. "Guard") a=0
+              write(io%pUnit, *) trim(actor(i)%name), " was unsuccessful."
            endif
-           write(io%pUnit, *), trim(actor(i)%name), " was successful", a
-        else
-           if (skill(j)%name .eq. "Guard") then
-              call eventDice(skill(j)%dice(actor(i)%skill(j),1), skill(j)%dice(actor(i)%skill(j),2), a)
-           else
-              a=0
+
+           ! determine what was gained or lost (if not 0)
+           if (a .ne. 0) then
+              select case (j)
+                 ! forage
+                 case (1)
+                    call eventBool(0.7,e) ! 70% food, 30% medicine
+                    if (e) then
+                       write(io%pUnit, *) green, "Gained food: "    , a, reset
+                    else
+                       write(io%pUnit, *) green, "Gained medicine: ", a, reset
+                    endif
+                 ! scout
+                 case (2)
+                    call eventBool(0.8,e) ! 80% equipment, 20% treasure
+                    if (e) then
+                       write(io%pUnit, *) green, "Gained equipment: ", a, reset
+                    else
+                       write(io%pUnit, *) green, "Gained treasure: " , a, reset
+                    endif
+                 ! guard
+                 case (3)
+                    call eventDice(1,4,b) ! 25% all resources
+                    select case (b)
+                       case (1); write(io%pUnit, *) red, "Lost food: "     , a, reset
+                       case (2); write(io%pUnit, *) red, "Lost medicine: " , a, reset
+                       case (3); write(io%pUnit, *) red, "Lost equipment: ", a, reset
+                       case (4); write(io%pUnit, *) red, "Lost treasure: " , a, reset
+                    end select
+              end select
            endif
-           write(io%pUnit, *), trim(actor(i)%name), " was unsuccessful", a
+
         endif
-     endif
 
-     enddo ! actor loop
-  enddo    ! action/skill loop
+     enddo
+  enddo
+  write(io%pUnit, *) ""
 
 end subroutine actions
 

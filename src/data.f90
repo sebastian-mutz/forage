@@ -76,7 +76,7 @@ module data
        &, actor(2)%health/100/    , actor(2)%sanity/100/ &
        &, actor(2)%att_vitality/8/, actor(2)%att_resilience/7/ &
        &, actor(2)%skill(1)/2/    , actor(2)%skill(2)/2/ &
-       &, actor(2)%skill(3)/5/    , actor(2)%skill(4)/1/ &
+       &, actor(2)%skill(3)/4/    , actor(2)%skill(4)/1/ &
        &, actor(2)%action/3/ &
        &, actor(3)%id/3/          , actor(3)%name/"El Capitan"/ &
        &, actor(3)%health/100/    , actor(3)%sanity/100/ &
