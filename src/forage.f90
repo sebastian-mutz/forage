@@ -346,8 +346,9 @@ subroutine load(n, inv)
 ! out:   inv - inventory of resources as read from file
 
 ! ==== Declarations
-  integer(i4)                       :: i, n
+  integer(i4)       , intent(in)    :: n
   type(TYP_resource), intent(inout) :: inv(n)
+  integer(i4)                       :: i
 
 ! ==== Instructions
 !
