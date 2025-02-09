@@ -351,7 +351,6 @@ subroutine load(n, inv)
   integer(i4)                       :: i
 
 ! ==== Instructions
-!
   open(io%wUnit, file="sav/inv.sav", action="read")
 
      ! read inventory
