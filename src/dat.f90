@@ -1,4 +1,4 @@
-module data
+module dat
 !
 ! |--------------------------------------------------------------------|
 ! | Forage: Expedition Simulator                                       |
@@ -19,47 +19,61 @@ module data
   private
 
 ! declare public
-  public :: actor, skill, rsc
+  public :: actor, skill, inv, event
 
 ! ==== Declarations
 
   integer(i4) :: i
 
 ! game world
-  type(TYP_actor) :: actor(4)
-  type(TYP_item)  :: rsc(4)
-  type(TYP_skill) :: skill(4)
+  type(TYP_resource) :: inv(4)
+  type(TYP_event)    :: event(4)
+  type(TYP_actor)    :: actor(4)
+  type(TYP_skill)    :: skill(4)
 
 ! ==== Data
 ! game world
-  data rsc(1)%id/1/ &
-       &, rsc(1)%name/"Food"/ &
-       &, rsc(2)%id/2/ &
-       &, rsc(2)%name/"Medicine"/ &
-       &, rsc(3)%id/3/ &
-       &, rsc(3)%name/"Equipment"/ &
-       &, rsc(4)%id/4/ &
-       &, rsc(4)%name/"Treasure"/
+  data inv(1)%name/"Food"/ &
+       &, inv(1)%stock/0/ &
+       &, inv(2)%name/"Medicine"/ &
+       &, inv(2)%stock/0/ &
+       &, inv(3)%name/"Equipment"/ &
+       &, inv(3)%stock/0/ &
+       &, inv(4)%name/"Treasure"/ &
+       &, inv(4)%stock/0/
 
-  data skill(1)%id/1/, skill(1)%name/"Forage"/ &
+  data event(1)%name/"Theft"/ &
+       &, event(1)%text/"Thieves snuck past your guards."/ &
+       &, event(1)%p/0.8/ &
+       &, event(2)%name/"Storm"/ &
+       &, event(2)%text/"A big storm ravaged your camp and damaged some goods."/ &
+       &, event(2)%p/0.1/ &
+       &, event(3)%name/"Weather"/ &
+       &, event(3)%text/"The weather was particularly bad. One of your team members is sick."/ &
+       &, event(3)%p/0.1/ &
+       &, event(4)%name/"Accident"/ &
+       &, event(4)%text/"One of your team members tripped and fell. Ouch!"/ &
+       &, event(4)%p/0.1/
+
+  data skill(1)%name/"Forage"/ &
        &, skill(1)%dice(1,1)/1/, skill(1)%dice(1,2)/4/ &
        &, skill(1)%dice(2,1)/1/, skill(1)%dice(2,2)/4/ &
        &, skill(1)%dice(3,1)/1/, skill(1)%dice(3,2)/6/ &
        &, skill(1)%dice(4,1)/1/, skill(1)%dice(4,2)/6/ &
        &, skill(1)%dice(5,1)/1/, skill(1)%dice(5,2)/12/ &
-       &, skill(2)%id/2/, skill(2)%name/"Scout"/ &
+       &, skill(2)%name/"Scout"/ &
        &, skill(2)%dice(1,1)/1/, skill(2)%dice(1,2)/6/ &
        &, skill(2)%dice(2,1)/1/, skill(2)%dice(2,2)/6/ &
        &, skill(2)%dice(3,1)/1/, skill(2)%dice(3,2)/12/ &
        &, skill(2)%dice(4,1)/1/, skill(2)%dice(4,2)/12/ &
        &, skill(2)%dice(5,1)/1/, skill(2)%dice(5,2)/20/ &
-       &  skill(3)%id/3/, skill(3)%name/"Guard"/ &
+       &  skill(3)%name/"Guard"/ &
        &, skill(3)%dice(1,1)/1/, skill(3)%dice(1,2)/20/ &
        &, skill(3)%dice(2,1)/1/, skill(3)%dice(2,2)/20/ &
        &, skill(3)%dice(3,1)/1/, skill(3)%dice(3,2)/12/ &
        &, skill(3)%dice(4,1)/1/, skill(3)%dice(4,2)/12/ &
        &, skill(3)%dice(5,1)/1/, skill(3)%dice(5,2)/6/ &
-       &, skill(4)%id/4/, skill(4)%name/"Heal"/ &
+       &, skill(4)%name/"Heal"/ &
        &, skill(4)%dice(1,1)/1/, skill(4)%dice(1,2)/4/ &
        &, skill(4)%dice(2,1)/1/, skill(4)%dice(2,2)/6/ &
        &, skill(4)%dice(3,1)/1/, skill(4)%dice(3,2)/8/ &
@@ -91,4 +105,4 @@ module data
        &, actor(4)%skill(3)/1/    , actor(4)%skill(4)/5/ &
        &, actor(4)%action/1/
 
-end module data
+end module dat

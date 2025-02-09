@@ -44,25 +44,25 @@ end subroutine start
 
 ! ==================================================================== !
 ! -------------------------------------------------------------------- !
-subroutine viewInventory(inv, rsc)
+subroutine viewInventory(n, inv)
 
 ! ==== Description
 ! out: eventCode - code for specific events; to betied to procedures.
 
 ! ==== Declarations
-  type(TYP_inventory), intent(in) :: inv
-  type(TYP_item)     , intent(in) :: rsc(4)
-  integer(i4)                     :: i
-  character(len=5)                :: cyan = char(27) // '[36m'
-  character(len=5)                :: reset = char(27) // '[0m'
+  integer(i4), intent(in)        :: n
+  type(TYP_resource), intent(in) :: inv(n)
+  integer(i4)                    :: i
+  character(len=5)               :: cyan = char(27) // '[36m'
+  character(len=5)               :: reset = char(27) // '[0m'
 
 ! ==== Instructions
 ! splash
   write(io%pUnit, *), cyan, ""
   write(io%pUnit, *), "// Inventory //"
   write(io%pUnit, *), "==============="
-  do i=1,inv%n
-     write(io%pUnit, '(a15,i5)'), rsc(((inv%id(i))))%name, inv%stock(i)
+  do i=1,n
+     write(io%pUnit, '(a11,i5)'), inv(i)%name, inv(i)%stock
   enddo
   write(io%pUnit, *), "", reset
 

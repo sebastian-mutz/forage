@@ -17,7 +17,7 @@ module typ
 
 ! declare public
   public :: dp, sp, i4, i8
-  public :: TYP_skill, TYP_actor, TYP_io, TYP_item, TYP_inventory
+  public :: TYP_skill, TYP_actor, TYP_resource, TYP_event, TYP_io
 
 ! ==== Definitions =================================================== !
 
@@ -54,26 +54,27 @@ module typ
      integer(i4)       :: skill(4), action
   end type TYP_actor
 
-! items/resources
-  type :: TYP_item
-     !! Derived type for items/resources.
+! resource
+  type :: TYP_resource
+     !! Derived type for recources & stock.
      !!
-     !! id   : item/resource ID
-     !! name : item/resource name
-     integer(i4)       :: id
-     character(len=20) :: name
-  end type TYP_item
+     !! name   : resourcse/item name
+     !! stock  : amount of each item/resource
+     character(len=10) :: name
+     integer(i4)       :: stock
+  end type TYP_resource
 
-! inventory
-  type :: TYP_inventory
-     !! Derived type for inventory.
+! event
+  type :: TYP_event
+     !! Derived type for events.
      !!
-     !! n      : number of item/resource types in inventory
-     !! id     : item/resource ID (n)
-     !! stock  : amount of each item/resource (n)
-     integer(i4)              :: n
-     integer(i4), allocatable :: id(:), stock(:)
-  end type TYP_inventory
+     !! name   : event name
+     !! text   : short event description
+     !! p      : probability of event
+     character(len=10)  :: name
+     character(len=100) :: text
+     real(sp)           :: p
+  end type TYP_event
 
 ! input/output
   type :: TYP_io
