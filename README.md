@@ -1,6 +1,6 @@
 # FORage
 
-FORage is a simple, text-based expedition manager game written in Fortran. 
+FORage is a simple, postapocalyptic, pigeon-themed expedition manager game written in Fortran. 
 
 Story
 -----
@@ -9,8 +9,8 @@ Climate change, pandemics, and global political instability lead to a series of 
 Gameplay
 --------
 - **Build a team**: All applicants for your pigeon-expedition have a unique set of skills and character traits. Choose a set of eager adventurers and make them your expedition members. You must gather your party before venturing FORth!
-- **Lead your expedition**: Decide how you spend the day before making camp. Forage and scout to gain resources, explore points of interest, spend time on recreation to keep up morale, distribute rations, and guard your camp to protect your members and resources from wild animals and bandits.
-- **Survive**: Deal with accidents and diseases, prevent a mutiny, and defend your camp against intruders.
+- **Lead your expedition**: Decide how you spend the day before making camp. Forage and scout to gain resources, explore points of interest, look after the health of your flock, and guard your camp to protect your members and resources from bandits (like magpies).
+- **Survive**: Deal with accidents and diseases, prevent a mutiny, and defend your nest against intruders.
 
 Installation
 ------------
