@@ -19,15 +19,15 @@ module ini
   private
 
 ! declare public
-  public :: io
+  public :: INI_io
 
 ! ==== Declarations
 
 ! game mechanics
-  type(TYP_io) :: io
+  type(TYP_io) :: INI_io
 
 ! ==== Data
 ! game mechanics
-  data io%pUnit/6/, io%wUnit/21/
+  data INI_io%pUnit/6/, INI_io%wUnit/21/
 
 end module ini

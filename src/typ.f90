@@ -17,7 +17,7 @@ module typ
 
 ! declare public
   public :: dp, sp, i4, i8
-  public :: TYP_skill, TYP_actor, TYP_resource, TYP_event, TYP_io
+  public :: TYP_skill, TYP_actor, TYP_resource, TYP_event, TYP_io!, TYP_col
 
 ! ==== Definitions =================================================== !
 
@@ -84,5 +84,16 @@ module typ
      !! wUnit : unit for writing output, e.g. 21
      integer(i4) :: pUnit, wUnit
   end type TYP_io
+
+! input/output
+!   type :: TYP_col
+!      !! Derived type for colours.
+!      !!
+!      !! name : name of function of colour (e.g., warning), not name of actual colour
+!      !! ansi : ansi colours
+!      !! TODO: add RGB as ansi alternative for sdl text render
+!      character(len=10) :: name
+!      character(len=5)  :: ansi
+!   end type TYP_col
 
 end module typ
