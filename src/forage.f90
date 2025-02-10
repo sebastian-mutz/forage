@@ -130,14 +130,14 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv)
 ! ---- activities
 
 ! action/skill loop
-  do j=1,ns
+  do j=1,3 ! only forage (1), scout (2) and heal (3)
 
      ! print heading if needed (ignore if guard also)
      e=.false.
      do i=1,na
         if (actor(i)%action .eq. j) e=.true.
      enddo
-     if (e .and. j .ne. 3) write(io%pUnit, *) purple, skill(j)%name, reset
+     if (e ) write(io%pUnit, *) purple, skill(j)%name, reset
 
      ! actor loop
      do i=1,na
@@ -146,7 +146,7 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv)
         if (actor(i)%action .eq. j) then
 
            ! get probability of success (max skill=5, max p=0.9) and determine if successful
-           p = float(actor(i)%skill(j))/5.555
+           p = float(actor(i)%skill(j))/(5./0.9)
            call eventBool(p,e)
 
            ! if determine extent of success/failure
@@ -186,14 +186,14 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv)
   do j=1,ne
      select case (event(j)%name)
 
-        ! Theft => lose resources. Preventable; relevant skill = 3 (guarding)
+        ! Theft => lose resources. Preventable; relevant skill = 4 (guarding)
         case ("Theft")
 
            ! calculate pooled guard skill (used as exponent for event p modifier)
            ! if on guard duty, update pooled skill sum
-           b = 0
+           b = 1 ! min =1
            do i=1,na
-              if (actor(i)%action .eq. 3) b=b+actor(i)%skill(3)
+              if (actor(i)%action .eq. 4) b=b+actor(i)%skill(4)
            enddo
 
            ! apply event probability modifier (p approaches 0) and determine outcome
@@ -204,8 +204,8 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv)
            if (e) then
 
               ! use pooled skill level to determine amount lost; cap at 5 total
-              if (b .gt. 5) b=0
-              call eventDice(skill(3)%dice(b,1), skill(3)%dice(b,2), a)
+              if (b .gt. 5) b=5
+              call eventDice(skill(4)%dice(b,1), skill(4)%dice(b,2), a)
 
               ! determine what was lost
               call eventDice(1,4,b) ! 25% all resources
@@ -228,13 +228,13 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv)
            if (e) then
 
               ! calculate pooled scouting skill of scouts on duty
-              b = 0
+              b = 1 ! min =1
               do i=1,na
                  if (actor(i)%action .eq. 2) b=b+actor(i)%skill(2)
               enddo
 
               ! use pooled skill level to determine amount lost; cap at 5 total
-              if (b .gt. 5) b=0
+              if (b .gt. 5) b=5
               call eventDice(1,20-b, a)
 
               ! determine what was lost
@@ -259,9 +259,9 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv)
            if (e) then
 
               ! calculate pooled scouting skill of scouts on duty
-              b = 0
+              b = 1 ! min =1
               do i=1,na
-                 if (actor(i)%action .eq. 4) b=b+actor(i)%skill(4)
+                 if (actor(i)%action .eq. 3) b=b+actor(i)%skill(3)
               enddo
 
               ! use pooled skill level to determine amount lost; cap at 5 total
