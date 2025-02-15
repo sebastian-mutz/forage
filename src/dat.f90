@@ -12,7 +12,7 @@ module dat
 ! |--------------------------------------------------------------------|
 !
 ! load modules
-  use :: typ
+  use typ
 
 ! basic options
   implicit none
@@ -81,7 +81,6 @@ module dat
        &, DAT_skill(4)%dice(3,1)/1/, DAT_skill(4)%dice(3,2)/12/ &
        &, DAT_skill(4)%dice(4,1)/1/, DAT_skill(4)%dice(4,2)/12/ &
        &, DAT_skill(4)%dice(5,1)/1/, DAT_skill(4)%dice(5,2)/6/
-
 
   data DAT_actor(1)%id/1/             , DAT_actor(1)%name/"Holde Knirbe"/ &
        &, DAT_actor(1)%health/100/    , DAT_actor(1)%sanity/100/ &

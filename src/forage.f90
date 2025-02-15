@@ -12,10 +12,10 @@ module forage
 ! |--------------------------------------------------------------------|
 
 ! load modules
-  use :: typ
-  use :: ini
-  use :: dsp
-  use :: dat
+  use typ
+  use dsp
+  use dat
+  use stdlib_ansi, only : operator(//)
 
 ! basic options
   implicit none
@@ -42,15 +42,17 @@ subroutine game_loop()
 ! game mechanics
   logical           :: done=.false., aB
   integer(i4)       :: eventCode, aI
-  real(sp)          :: aR
-  character(len=5)  :: blue = char(27) // '[34m'
-  character(len=5)  :: reset = char(27) // '[0m'
+  real(wp)          :: aR
+
+! display
+  type(TYP_ansi) :: ansi
 
 ! general
   integer(i4) :: i
 
 ! ==== Instructions
 ! initialisation
+  call initialise(ansi)
 
 ! splash screen and user input
   call start()
@@ -61,19 +63,20 @@ subroutine game_loop()
 
 ! determine action
   select case (eventCode)
-     case (1); write(INI_io%pUnit, *), "> Loading game ..."
-     case (2); write(INI_io%pUnit, *), "> Starting new game ..."
+     case (1); write(std_o, *), "> Loading game ..."
+     case (2); write(std_o, *), "> Starting new game ..."
      case (3); done = .true.
   end select
 
 ! game loop
   do while (.not. done)
-     write(INI_io%pUnit, *) "> Waiting for user input ", blue&
-        &, "(1. play \ 2. view inventory \ 3. view team \ 4. save & exit)", reset
+     write(std_o, *) "> Waiting for user input " // ansi%info&
+        &, "(1. play \ 2. view inventory \ 3. view team \ 4. save & exit)"&
+        & // ansi%reset
      read *, eventCode
      select case (eventCode)
         case (1); call camp(size(DAT_event), DAT_event, size(DAT_skill), DAT_skill&
-           &, size(DAT_actor), DAT_actor, size(DAT_inv), DAT_inv)
+           &, size(DAT_actor), DAT_actor, size(DAT_inv), DAT_inv, ansi)
         case (2); call viewInventory(size(DAT_inv), DAT_inv)
         case (3); call viewTeam(size(DAT_actor), DAT_actor)
         case (4); done = .true.
@@ -85,7 +88,7 @@ end subroutine game_loop
 
 ! ==================================================================== !
 ! -------------------------------------------------------------------- !
-subroutine camp(ne, event, ns, skill, na, actor, ni, inv)
+subroutine camp(ne, event, ns, skill, na, actor, ni, inv, ansi)
 
 ! ==== Description
 ! Simulates the outcome of activities and events when camping (1 per turn/day):
@@ -110,24 +113,20 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv)
   integer(i4)       , intent(in)    :: na, ns, ni, ne
   type(TYP_skill)   , intent(in)    :: skill(ns)
   type(TYP_event)   , intent(in)    :: event(ne)
+  type(TYP_ansi)    , intent(in)    :: ansi
   type(TYP_actor)   , intent(inout) :: actor(na)
   type(TYP_resource), intent(inout) :: inv(ni)
   integer(i4)                       :: i, j, a, b
-  real(sp)                          :: p
+  real(wp)                          :: p
   logical                           :: e
-  character(len=5)                  :: cyan = char(27) // '[36m'
-  character(len=5)                  :: purple = char(27) // '[35m'
-  character(len=5)                  :: red = char(27) // '[31m'
-  character(len=5)                  :: green = char(27) // '[32m'
-  character(len=5)                  :: reset = char(27) // '[0m'
 
 ! ==== Instructions
 ! TODO: only calculations here; dsp routine for display
 
-  write(INI_io%pUnit, *) cyan, ""
-  write(INI_io%pUnit, *) "// End-of-Day Results //"
-  write(INI_io%pUnit, *) "========================", reset
-  write(INI_io%pUnit, *) ""
+  write(std_o, *) ansi%heading // ""
+  write(std_o, *) "// End-of-Day Results //"
+  write(std_o, *) "========================"
+  write(std_o, *) "" // ansi%reset
 
 ! ---- activities
 
@@ -139,7 +138,8 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv)
      do i=1,na
         if (actor(i)%action .eq. j) e=.true.
      enddo
-     if (e ) write(INI_io%pUnit, *) purple, skill(j)%name, reset
+     if (e ) write(std_o, *) ansi%heading // skill(j)%name // ansi%reset
+             write(std_o, *) ""
 
      ! actor loop
      do i=1,na
@@ -163,28 +163,30 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv)
                     ! update food entry in inventory
                     b=1
                     inv(b)%stock=inv(b)%stock+a
-                    write(INI_io%pUnit, *) trim(actor(i)%name), " was successful."
-                    write(INI_io%pUnit, '(a5,a3,a,a9,i2,a5)') green, " + ", trim(inv(b)%name), " gained: " , a, reset
+                    write(std_o, *) trim(actor(i)%name), " was successful."
+                    write(std_o, *) ansi%gain // " + ", trim(inv(b)%name)&
+                    &, " gained: " , a, "" // ansi%reset
 
                  ! scout
                  case (2)
                    ! determine what was gained and update inventory
                     call eventDice(2,4,b)
                     inv(b)%stock=inv(b)%stock+a
-                    write(INI_io%pUnit, *) trim(actor(i)%name), " was successful."
-                    write(INI_io%pUnit, '(a5,a3,a,a9,i2,a5)') green, " + ", trim(inv(b)%name), " gained: " , a, reset
+                    write(std_o, *) trim(actor(i)%name), " was successful."
+                    write(std_o, *) ansi%gain // " + "&
+                    &, trim(inv(b)%name), " gained: " , a, "" // ansi%reset
 
               end select
            endif
         endif
      enddo
   enddo
-  write(INI_io%pUnit, *) ""
+  write(std_o, *) ""
 
 ! ---- events
 
 ! event loop
-  write(INI_io%pUnit, *) purple, "Events", reset
+  write(std_o, *) ansi%heading // "Events" // ansi%reset
   do j=1,ne
      select case (event(j)%name)
 
@@ -216,8 +218,8 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv)
               if ((inv(b)%stock-a) .le. 0) a=a+(inv(b)%stock-a)
               inv(b)%stock = inv(b)%stock-a
 
-              write(INI_io%pUnit, *) event(j)%text
-              write(INI_io%pUnit, '(a5,a3,a,a7,i2,a5)') red, " - ", trim(inv(b)%name), " lost: " , a, reset
+              write(std_o, *) event(j)%text // ansi%loss // " - "&
+              , trim(inv(b)%name), " lost: " , a, "" // ansi%reset
            endif
 
         ! Storms => lose resources; active scouts lessens impact
@@ -246,8 +248,8 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv)
               if ((inv(b)%stock-a) .le. 0) a=a+(inv(b)%stock-a)
               inv(b)%stock = inv(b)%stock-a
 
-              write(INI_io%pUnit, *) event(j)%text
-              write(INI_io%pUnit, '(a5,a3,a,a7,i2,a5)') red, " - ", trim(inv(b)%name), " lost: " , a, reset
+              write(std_o, *) event(j)%text // ansi%loss // " - "&
+              &, trim(inv(b)%name), " lost: " , a, "" // ansi%reset
            endif
 
 
@@ -277,13 +279,13 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv)
               if (actor(b)%health-a .le. 0) a=a+(actor(b)%health-a)
               actor(b)%health = actor(b)%health-a
 
-              write(INI_io%pUnit, *) event(j)%text
-              write(INI_io%pUnit, '(a5,a3,a,a7,i2,a7,a5)') red, " - ", trim(actor(b)%name), " lost: " , a, " health", reset
+              write(std_o, *) event(j)%text // ansi%loss // " - "&
+              &, trim(actor(b)%name), " lost: " , a, " health", "" // ansi%reset
            endif
 
       end select
   enddo
-  write(INI_io%pUnit, *) ""
+  write(std_o, *) ""
 
 end subroutine camp
 
@@ -301,7 +303,7 @@ subroutine eventDice(a, b, e)
 ! ==== Declarations
   integer(i4), intent(in)  :: a, b
   integer(i4), intent(out) :: e
-  real(sp)                 :: rnd
+  real(wp)                 :: rnd
 
 ! ==== Instructions
 ! generate a random number (in range 0.0 - 1.0)
@@ -324,9 +326,9 @@ subroutine eventBool(p, e)
 ! other: rnd - generated random number
 
 ! ==== Declarations
-    real(sp), intent(in)  :: p
-    logical , intent(out) :: e
-    real(sp)              :: rnd
+  real(wp), intent(in)  :: p
+  logical , intent(out) :: e
+  real(wp)              :: rnd
 
 ! ==== Instructions
 ! (re-)initialise random number generator (optional)
@@ -353,16 +355,16 @@ subroutine load(n, inv)
   integer(i4)                       :: i
 
 ! ==== Instructions
-  open(INI_io%wUnit, file="sav/inv.sav", action="read")
+  open(std_rw, file="sav/inv.sav", action="read")
 
      ! read inventory
      do i=1,n
-        read(INI_io%wUnit,*) inv(i)%stock
+        read(std_rw,*) inv(i)%stock
      enddo
 
     ! TODO: read actor selection and their states (hp, etc.)
 
-  close(INI_io%wUnit)
+  close(std_rw)
 
 end subroutine load
 

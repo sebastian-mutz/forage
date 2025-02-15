@@ -11,19 +11,39 @@ module typ
 ! | author  : Sebastian G. Mutz (sebastian@sebastianmutz.eu)           |
 ! |--------------------------------------------------------------------|
 
+! load modules
+  use iso_fortran_env, only: int32, int64, real32, real64, &
+                             & input_unit, output_unit, error_unit
+  use stdlib_ansi, only : fg_color_cyan, fg_color_blue, fg_color_magenta, fg_color_green, &
+                          & style_bold, style_reset, ansi_code, &
+                          & operator(//), operator(+)
+
 ! basic options
   implicit none
   private
 
-! declare public
-  public :: dp, sp, i4, i8
-  public :: TYP_skill, TYP_actor, TYP_resource, TYP_event, TYP_io!, TYP_col
+! declare public types/kinds
+  public :: dp, sp, wp, i4, i8
+  public :: std_i, std_o, std_e, std_rw
+  public :: TYP_skill, TYP_actor, TYP_resource, TYP_event, TYP_ansi
+
+! declare public procedures
+  public :: initialise
 
 ! ==== Definitions =================================================== !
 
 ! define kinds (used consistently and explicitly in derived types and entire project)
- integer, parameter :: dp=selected_real_kind(15,307), sp=selected_real_kind(6,37) &
-                    &, i4=selected_int_kind(9),i8=selected_int_kind(18)
+  integer, parameter :: sp = real32  ! single precision
+  integer, parameter :: dp = real64  ! double precision
+  integer, parameter :: wp = sp      ! working precision
+  integer, parameter :: i4 = int32
+  integer, parameter :: i8 = int64
+
+  ! standard i/o
+  integer, parameter :: std_i  = input_unit
+  integer, parameter :: std_o  = output_unit
+  integer, parameter :: std_e  = error_unit
+  integer, parameter :: std_rw = 21
 
 ! skills
   type :: TYP_skill
@@ -73,27 +93,45 @@ module typ
      !! p      : probability of event
      character(len=10)  :: name
      character(len=100) :: text
-     real(sp)           :: p
+     real(wp)           :: p
   end type TYP_event
 
-! input/output
-  type :: TYP_io
-     !! Derived type for input/output.
+! ansi style set
+  type :: TYP_ansi
+     !! Derived type for colour/style sets.
      !!
-     !! pUnit : unit for printing messages on screen, typically 6
-     !! wUnit : unit for writing output, e.g. 21
-     integer(i4) :: pUnit, wUnit
-  end type TYP_io
+     !! TODO: add RGB as ansi alternative for sdl text render
+     type(ansi_code) :: info, heading, gain, loss, reset
+  end type TYP_ansi
 
-! input/output
-!   type :: TYP_col
-!      !! Derived type for colours.
-!      !!
-!      !! name : name of function of colour (e.g., warning), not name of actual colour
-!      !! ansi : ansi colours
-!      !! TODO: add RGB as ansi alternative for sdl text render
-!      character(len=10) :: name
-!      character(len=5)  :: ansi
-!   end type TYP_col
+
+contains
+
+
+! ==================================================================== !
+! -------------------------------------------------------------------- !
+subroutine initialise(ansi)
+
+! ==== Description
+!! create ansi style using derived type TYP_ansi
+
+! ==== Declarations
+  type(TYP_ansi), intent(out) :: ansi
+
+! ==== Instructions
+
+! define colours and styles
+  ansi%info    = fg_color_blue
+  ansi%heading = fg_color_blue + style_bold
+  ansi%gain    = fg_color_green
+  ansi%loss    = fg_color_magenta
+  ansi%reset   = style_reset
+
+end subroutine
+
+
+
+
+
 
 end module typ

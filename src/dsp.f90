@@ -12,8 +12,7 @@ module dsp
 ! |--------------------------------------------------------------------|
 
 ! load modules
-  use :: typ
-  use :: ini
+  use typ
 
 ! basic options
   implicit none
@@ -30,14 +29,14 @@ subroutine start()
 
 ! ==== Instructions
 ! splash
-  write(INI_io%pUnit, *), ""
-  write(INI_io%pUnit, *), "///////////////////////////////////"
-  write(INI_io%pUnit, *), "// FORage - Expedition Simulator //"
-  write(INI_io%pUnit, *), "///////////////////////////////////"
-  write(INI_io%pUnit, *), ""
-  write(INI_io%pUnit, *), "1. Continue game."
-  write(INI_io%pUnit, *), "2. New game (overwrites progress)."
-  write(INI_io%pUnit, *), "3. Exit."
+  write(std_o, *), ""
+  write(std_o, *), "///////////////////////////////////"
+  write(std_o, *), "// FORage - Expedition Simulator //"
+  write(std_o, *), "///////////////////////////////////"
+  write(std_o, *), ""
+  write(std_o, *), "1. Continue game."
+  write(std_o, *), "2. New game (overwrites progress)."
+  write(std_o, *), "3. Exit."
 
 end subroutine start
 
@@ -58,13 +57,13 @@ subroutine viewInventory(n, inv)
 
 ! ==== Instructions
 ! splash
-  write(INI_io%pUnit, *), cyan, ""
-  write(INI_io%pUnit, *), "// Inventory //"
-  write(INI_io%pUnit, *), "==============="
+  write(std_o, *), cyan, ""
+  write(std_o, *), "// Inventory //"
+  write(std_o, *), "==============="
   do i=1,n
-     write(INI_io%pUnit, '(a11,i5)'), inv(i)%name, inv(i)%stock
+     write(std_o, '(a11,i5)'), inv(i)%name, inv(i)%stock
   enddo
-  write(INI_io%pUnit, *), "", reset
+  write(std_o, *), "", reset
 
 end subroutine viewInventory
 
@@ -85,15 +84,15 @@ subroutine viewTeam(n, actor)
 
 ! ==== Instructions
 ! splash
-  write(INI_io%pUnit, *), cyan, ""
-  write(INI_io%pUnit, *), "// Expedition Members //"
-  write(INI_io%pUnit, *), "========================"
+  write(std_o, *), cyan, ""
+  write(std_o, *), "// Expedition Members //"
+  write(std_o, *), "========================"
   do i=1,n
-     write(INI_io%pUnit, '(a15,a5,i2,a1)'), actor(i)%name, "(ID: ", actor(i)%id, ")"
-     write(INI_io%pUnit, '(a10,i3,a10,i3)'), "Health: ", actor(i)%health, "Sanity:", actor(i)%sanity
-     write(INI_io%pUnit, *), "------------------------"
+     write(std_o, '(a15,a5,i2,a1)'), actor(i)%name, "(ID: ", actor(i)%id, ")"
+     write(std_o, '(a10,i3,a10,i3)'), "Health: ", actor(i)%health, "Sanity:", actor(i)%sanity
+     write(std_o, *), "------------------------"
   enddo
-     write(INI_io%pUnit, *), "", reset
+     write(std_o, *), "", reset
 
 end subroutine viewTeam
 
