@@ -15,7 +15,9 @@ module forage
   use typ
   use dsp
   use dat
-  use stdlib_ansi, only : operator(//)
+  use stdlib_ansi, only : fg_color_cyan, fg_color_blue, fg_color_magenta&
+                       &, fg_color_green, style_bold, style_reset, ansi_code&
+                       &, operator(//), operator(+)
 
 ! basic options
   implicit none
@@ -75,8 +77,9 @@ subroutine game_loop()
         & // ansi%reset
      read *, eventCode
      select case (eventCode)
-        case (1); call camp(size(DAT_event), DAT_event, size(DAT_skill), DAT_skill&
-           &, size(DAT_actor), DAT_actor, size(DAT_inv), DAT_inv, ansi)
+        case (1); call camp(size(DAT_event), DAT_event, size(DAT_skill)&
+           &, DAT_skill, size(DAT_actor), DAT_actor, size(DAT_inv), DAT_inv&
+           &, ansi)
         case (2); call viewInventory(size(DAT_inv), DAT_inv)
         case (3); call viewTeam(size(DAT_actor), DAT_actor)
         case (4); done = .true.
@@ -139,7 +142,6 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv, ansi)
         if (actor(i)%action .eq. j) e=.true.
      enddo
      if (e ) write(std_o, *) ansi%heading // skill(j)%name // ansi%reset
-             write(std_o, *) ""
 
      ! actor loop
      do i=1,na
@@ -152,7 +154,8 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv, ansi)
            call eventBool(p,e)
 
            ! if determine extent of success/failure
-           call eventDice(skill(j)%dice(actor(i)%skill(j),1), skill(j)%dice(actor(i)%skill(j),2), a)
+           call eventDice(skill(j)%dice(actor(i)%skill(j),1)&
+                &, skill(j)%dice(actor(i)%skill(j),2), a)
 
            ! determine what was gained or lost (if not 0) and update inventory
            if (a .ne. 0) then
@@ -218,8 +221,9 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv, ansi)
               if ((inv(b)%stock-a) .le. 0) a=a+(inv(b)%stock-a)
               inv(b)%stock = inv(b)%stock-a
 
-              write(std_o, *) event(j)%text // ansi%loss // " - "&
-              , trim(inv(b)%name), " lost: " , a, "" // ansi%reset
+              write(std_o, *) event(j)%text
+              write(std_o, *) ansi%loss // " - ", trim(inv(b)%name)&
+              &, " lost: " , a, "" // ansi%reset
            endif
 
         ! Storms => lose resources; active scouts lessens impact
@@ -248,8 +252,9 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv, ansi)
               if ((inv(b)%stock-a) .le. 0) a=a+(inv(b)%stock-a)
               inv(b)%stock = inv(b)%stock-a
 
-              write(std_o, *) event(j)%text // ansi%loss // " - "&
-              &, trim(inv(b)%name), " lost: " , a, "" // ansi%reset
+              write(std_o, *) event(j)%text
+              write(std_o, *) ansi%loss // " - ", trim(inv(b)%name)&
+              &, " lost: " , a, "" // ansi%reset
            endif
 
 
@@ -279,8 +284,9 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv, ansi)
               if (actor(b)%health-a .le. 0) a=a+(actor(b)%health-a)
               actor(b)%health = actor(b)%health-a
 
-              write(std_o, *) event(j)%text // ansi%loss // " - "&
-              &, trim(actor(b)%name), " lost: " , a, " health", "" // ansi%reset
+              write(std_o, *) event(j)%text
+              write(std_o, *) ansi%loss // " - ", trim(actor(b)%name)&
+              &, " lost: " , a, " health", "" // ansi%reset
            endif
 
       end select
@@ -306,6 +312,8 @@ subroutine eventDice(a, b, e)
   real(wp)                 :: rnd
 
 ! ==== Instructions
+! (re-)initialise random number generator (optional)
+  call random_seed()
 ! generate a random number (in range 0.0 - 1.0)
   call random_number(rnd)
 ! adjust for range and convert to integer
@@ -339,6 +347,28 @@ subroutine eventBool(p, e)
   e = (rnd .lt. p)
 
 end subroutine eventBool
+
+
+! ==================================================================== !
+! -------------------------------------------------------------------- !
+subroutine initialise(ansi)
+
+! ==== Description
+!! create ansi style using derived type TYP_ansi
+
+! ==== Declarations
+  type(TYP_ansi), intent(out) :: ansi
+
+! ==== Instructions
+
+! define colours and styles
+  ansi%info    = fg_color_blue
+  ansi%heading = fg_color_blue + style_bold
+  ansi%gain    = fg_color_green
+  ansi%loss    = fg_color_magenta
+  ansi%reset   = style_reset
+
+end subroutine
 
 
 ! ==================================================================== !

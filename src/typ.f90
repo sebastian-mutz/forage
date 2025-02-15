@@ -12,23 +12,18 @@ module typ
 ! |--------------------------------------------------------------------|
 
 ! load modules
-  use iso_fortran_env, only: int32, int64, real32, real64, &
-                             & input_unit, output_unit, error_unit
-  use stdlib_ansi, only : fg_color_cyan, fg_color_blue, fg_color_magenta, fg_color_green, &
-                          & style_bold, style_reset, ansi_code, &
-                          & operator(//), operator(+)
+  use iso_fortran_env, only: int32, int64, real32, real64&
+                          &, input_unit, output_unit, error_unit
+  use stdlib_ansi, only : ansi_code
 
 ! basic options
   implicit none
   private
 
-! declare public types/kinds
+! declare public
   public :: dp, sp, wp, i4, i8
   public :: std_i, std_o, std_e, std_rw
   public :: TYP_skill, TYP_actor, TYP_resource, TYP_event, TYP_ansi
-
-! declare public procedures
-  public :: initialise
 
 ! ==== Definitions =================================================== !
 
@@ -103,35 +98,6 @@ module typ
      !! TODO: add RGB as ansi alternative for sdl text render
      type(ansi_code) :: info, heading, gain, loss, reset
   end type TYP_ansi
-
-
-contains
-
-
-! ==================================================================== !
-! -------------------------------------------------------------------- !
-subroutine initialise(ansi)
-
-! ==== Description
-!! create ansi style using derived type TYP_ansi
-
-! ==== Declarations
-  type(TYP_ansi), intent(out) :: ansi
-
-! ==== Instructions
-
-! define colours and styles
-  ansi%info    = fg_color_blue
-  ansi%heading = fg_color_blue + style_bold
-  ansi%gain    = fg_color_green
-  ansi%loss    = fg_color_magenta
-  ansi%reset   = style_reset
-
-end subroutine
-
-
-
-
 
 
 end module typ
