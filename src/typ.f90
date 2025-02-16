@@ -23,7 +23,8 @@ module typ
 ! declare public
   public :: dp, sp, wp, i4, i8
   public :: std_i, std_o, std_e, std_rw
-  public :: TYP_skill, TYP_actor, TYP_resource, TYP_event, TYP_ansi
+  public :: TYP_skill, TYP_actor, TYP_resource, TYP_event, TYP_camplog
+  public :: TYP_ansi
 
 ! ==== Definitions =================================================== !
 
@@ -90,6 +91,22 @@ module typ
      character(len=100) :: text
      real(wp)           :: p
   end type TYP_event
+
+! event
+  type :: TYP_camplog(ne, na)
+     !! Derived type to store the camping outcomes.
+     !!
+     !! event         : true = event occured
+     !! event_target  : index of affected item or actor
+     !! event_impact  : quantitative impact on target (e.g., no of items lost)
+     !! actor_success : index of successful action (0 if none/unsuccesfful)
+     !! actor_target  : index of affected item or actor
+     !! actor impact  : quantitative impact on target (e.g., healed hitpoints)
+     integer(i4), len :: ne, na
+     logical          :: event(ne)
+     integer(i4)      :: event_target(ne), event_impact(ne)
+     integer(i4)      :: actor_succes(na), actor_target(na), actor_impact(na)
+  end type TYP_camplog
 
 ! ansi style set
   type :: TYP_ansi

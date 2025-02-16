@@ -42,9 +42,11 @@ subroutine game_loop()
 !  type(TYP_resource) :: inv
 
 ! game mechanics
-  logical           :: done=.false., aB
-  integer(i4)       :: eventCode, aI
-  real(wp)          :: aR
+  logical                   :: done=.false.
+  integer(i4)               :: eventCode
+  integer(i4), parameter    :: ne=size(DAT_event), na=size(DAT_actor)&
+                            &, ni=size(DAT_inv)  , ns=size(DAT_skill)
+  type(TYP_camplog(ne, na)) :: camplog
 
 ! display
   type(TYP_ansi) :: ansi
@@ -61,7 +63,7 @@ subroutine game_loop()
   read *, eventCode
 
 ! load game state/update inventory
-  call load(size(DAT_inv), DAT_inv)
+  call load(ni, DAT_inv)
 
 ! determine action
   select case (eventCode)
@@ -72,18 +74,25 @@ subroutine game_loop()
 
 ! game loop
   do while (.not. done)
+     ! clear camping log
+     call clear(ne, na, camplog)
+
+     ! prompt
      write(std_o, *) "> Waiting for user input " // ansi%info&
         &, "(1. play \ 2. view inventory \ 3. view team \ 4. save & exit)"&
         & // ansi%reset
      read *, eventCode
+
+     ! determine action
      select case (eventCode)
-        case (1); call camp(size(DAT_event), DAT_event, size(DAT_skill)&
-           &, DAT_skill, size(DAT_actor), DAT_actor, size(DAT_inv), DAT_inv&
-           &, ansi)
-        case (2); call viewInventory(size(DAT_inv), DAT_inv)
-        case (3); call viewTeam(size(DAT_actor), DAT_actor)
+        case (1); call camp(ne, DAT_event, ns&
+               &, DAT_skill, na, DAT_actor, ni, DAT_inv&
+               &, camplog, ansi)
+        case (2); call viewInventory(ni, DAT_inv)
+        case (3); call viewTeam(na, DAT_actor)
         case (4); done = .true.
      end select
+
   enddo
 
 end subroutine game_loop
@@ -91,7 +100,7 @@ end subroutine game_loop
 
 ! ==================================================================== !
 ! -------------------------------------------------------------------- !
-subroutine camp(ne, event, ns, skill, na, actor, ni, inv, ansi)
+subroutine camp(ne, event, ns, skill, na, actor, ni, inv, camplog, ansi)
 
 ! ==== Description
 ! Simulates the outcome of activities and events when camping (1 per turn/day):
@@ -113,15 +122,16 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv, ansi)
 ! inout: actor and inventory (inv)
 
 ! ==== Declarations
-  integer(i4)       , intent(in)    :: na, ns, ni, ne
-  type(TYP_skill)   , intent(in)    :: skill(ns)
-  type(TYP_event)   , intent(in)    :: event(ne)
-  type(TYP_ansi)    , intent(in)    :: ansi
-  type(TYP_actor)   , intent(inout) :: actor(na)
-  type(TYP_resource), intent(inout) :: inv(ni)
-  integer(i4)                       :: i, j, a, b
-  real(wp)                          :: p
-  logical                           :: e
+  integer(i4)              , intent(in)    :: na, ns, ni, ne
+  type(TYP_skill)          , intent(in)    :: skill(ns)
+  type(TYP_event)          , intent(in)    :: event(ne)
+  type(TYP_ansi)           , intent(in)    :: ansi
+  type(TYP_camplog(ne, na)), intent(inout) :: camplog
+  type(TYP_actor)          , intent(inout) :: actor(na)
+  type(TYP_resource)       , intent(inout) :: inv(ni)
+  integer(i4)                              :: i, j, a, b
+  real(wp)                                 :: p
+  logical                                  :: e
 
 ! ==== Instructions
 ! TODO: only calculations here; dsp routine for display
@@ -136,7 +146,7 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv, ansi)
 ! action/skill loop
   do j=1,3 ! only forage (1), scout (2) and heal (3)
 
-     ! print heading if needed (ignore if guard also)
+     ! print heading if needed
      e=.false.
      do i=1,na
         if (actor(i)%action .eq. j) e=.true.
@@ -367,6 +377,32 @@ subroutine initialise(ansi)
   ansi%gain    = fg_color_green
   ansi%loss    = fg_color_magenta
   ansi%reset   = style_reset
+
+end subroutine
+
+
+! ==================================================================== !
+! -------------------------------------------------------------------- !
+subroutine clear(ne, na, camplog)
+
+! ==== Description
+!! clear the camplog.
+
+! ==== Declarations
+  integer(i4)              , intent(in)    :: na, ne
+  type(TYP_camplog(ne, na)), intent(inout) :: camplog
+
+! ==== Instructions
+
+! clear events
+  camplog%event(:)=.false.
+  camplog%event_target(:)=0
+  camplog%event_impact(:)=0
+
+! clear activities
+  camplog%actor_succes(:)=0
+  camplog%actor_target(:)=0
+  camplog%actor_impact(:)=0
 
 end subroutine
 
