@@ -105,7 +105,7 @@ module typ
      integer(i4), len :: ne, na
      logical          :: event(ne)
      integer(i4)      :: event_target(ne), event_impact(ne)
-     integer(i4)      :: actor_succes(na), actor_target(na), actor_impact(na)
+     integer(i4)      :: actor_success(na), actor_target(na), actor_impact(na)
   end type TYP_camplog
 
 ! ansi style set

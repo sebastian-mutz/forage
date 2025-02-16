@@ -33,17 +33,18 @@ contains
 subroutine game_loop()
 
 ! ==== Description
-!! in:
-!! nAct  - number of actors
-!! actor - actors/PCs
+!! done  - true to exit game loop
+!! code  - code for user input and other events
+!! day   - current time (day)
+!! ne, na, ni, ns  - no. of events, actors, inventory items, skills
+!
+! defined in dat module:
+!! DAT_actor - actors/PCs
 
 ! ==== Declarations
-! game world
-!  type(TYP_resource) :: inv
-
 ! game mechanics
   logical                   :: done=.false.
-  integer(i4)               :: eventCode
+  integer(i4)               :: code, day
   integer(i4), parameter    :: ne=size(DAT_event), na=size(DAT_actor)&
                             &, ni=size(DAT_inv)  , ns=size(DAT_skill)
   type(TYP_camplog(ne, na)) :: camplog
@@ -57,40 +58,62 @@ subroutine game_loop()
 ! ==== Instructions
 ! initialisation
   call initialise(ansi)
+! clear camping log
+  call clear(ne, na, camplog)
+! reset days
+  day=0
 
 ! splash screen and user input
-  call start()
-  read *, eventCode
+  call start(ansi)
+  read *, code
 
 ! load game state/update inventory
   call load(ni, DAT_inv)
 
 ! determine action
-  select case (eventCode)
-     case (1); write(std_o, *), "> Loading game ..."
-     case (2); write(std_o, *), "> Starting new game ..."
+  select case (code)
+     case (1); write(std_o, *) "> Loading game ..."
+     case (2); write(std_o, *) "> Starting new game ..."
      case (3); done = .true.
   end select
 
 ! game loop
   do while (.not. done)
-     ! clear camping log
-     call clear(ne, na, camplog)
 
      ! prompt
      write(std_o, *) "> Waiting for user input " // ansi%info&
-        &, "(1. play \ 2. view inventory \ 3. view team \ 4. save & exit)"&
+        &, "|1: play |2: view log |3: view inventory " &
+        &, "|4: view team |5: exit"&
         & // ansi%reset
-     read *, eventCode
+     read *, code
 
      ! determine action
-     select case (eventCode)
-        case (1); call camp(ne, DAT_event, ns&
-               &, DAT_skill, na, DAT_actor, ni, DAT_inv&
-               &, camplog, ansi)
-        case (2); call viewInventory(ni, DAT_inv)
-        case (3); call viewTeam(na, DAT_actor)
-        case (4); done = .true.
+     select case (code)
+       ! camping
+        case (1)
+           ! update day
+           day=day+1
+           ! clear camplog from previous day
+           call clear(ne, na, camplog)
+           ! camp (compute activities and events)
+           call camp(ne, DAT_event, ns, DAT_skill, na, DAT_actor&
+             &, ni, DAT_inv, camplog)
+           ! view camping log
+           call viewLog(ne, DAT_event, ns, DAT_skill, na, DAT_actor&
+             &, ni, DAT_inv, day, camplog, ansi)
+        ! view camplog
+        case (2)
+           call viewLog(ne, DAT_event, ns, DAT_skill, na, DAT_actor&
+             &, ni, DAT_inv, day, camplog, ansi)
+        ! view inventory
+        case (3)
+           call viewInventory(ni, DAT_inv, ansi)
+        ! view team
+        case (4)
+           call viewTeam(na, DAT_actor, ansi)
+        ! exit
+        case (5)
+           done = .true.
      end select
 
   enddo
@@ -100,7 +123,7 @@ end subroutine game_loop
 
 ! ==================================================================== !
 ! -------------------------------------------------------------------- !
-subroutine camp(ne, event, ns, skill, na, actor, ni, inv, camplog, ansi)
+subroutine camp(ne, event, ns, skill, na, actor, ni, inv, camplog)
 
 ! ==== Description
 ! Simulates the outcome of activities and events when camping (1 per turn/day):
@@ -112,49 +135,47 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv, camplog, ansi)
 !    c. If successful, uses actor skills to determine dice to be rolled
 !       (i.e. the value range) to determine the extent of the success
 !       (e.g., how much food was gained from foraging).
-!    d. Update inventory.
+!    d. Update inventory and camplog.
 !
 ! 2. Determines outcome of random events (theft, accidents, etc.)
 !    a. Roll for events from a predefined list
 !    b. Determine outcome of events; may depend on actor skills.
-!    c. Update actors or inventory as necessary.
+!    c. Update actors, inventory, and camplog as necessary.
 !
-! inout: actor and inventory (inv)
+! in:
+! na, ns, ni, ne - no. of actors, skills, inventory items, evcnts
+! skills, events - skill and event attributes
+!
+! inout:
+! camplog, actor and inventory (inv)
+!
+! other:
+! i, j, a, b, c - integers for looping and calculations
+! p - probability (real)
+! e - event occurence (true or false)
 
 ! ==== Declarations
   integer(i4)              , intent(in)    :: na, ns, ni, ne
   type(TYP_skill)          , intent(in)    :: skill(ns)
   type(TYP_event)          , intent(in)    :: event(ne)
-  type(TYP_ansi)           , intent(in)    :: ansi
   type(TYP_camplog(ne, na)), intent(inout) :: camplog
   type(TYP_actor)          , intent(inout) :: actor(na)
   type(TYP_resource)       , intent(inout) :: inv(ni)
-  integer(i4)                              :: i, j, a, b
+  integer(i4)                              :: i, j, a, b, c
   real(wp)                                 :: p
   logical                                  :: e
 
 ! ==== Instructions
-! TODO: only calculations here; dsp routine for display
-
-  write(std_o, *) ansi%heading // ""
-  write(std_o, *) "// End-of-Day Results //"
-  write(std_o, *) "========================"
-  write(std_o, *) "" // ansi%reset
 
 ! ---- activities
 
 ! action/skill loop
   do j=1,3 ! only forage (1), scout (2) and heal (3)
 
-     ! print heading if needed
-     e=.false.
-     do i=1,na
-        if (actor(i)%action .eq. j) e=.true.
-     enddo
-     if (e ) write(std_o, *) ansi%heading // skill(j)%name // ansi%reset
-
      ! actor loop
      do i=1,na
+        a=0 ! impact reset
+        c=0 ! target reset
 
         ! check if actor tasked with action
         if (actor(i)%action .eq. j) then
@@ -170,37 +191,35 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv, camplog, ansi)
            ! determine what was gained or lost (if not 0) and update inventory
            if (a .ne. 0) then
               select case (j)
-
                  ! forage
                  case (1)
                     ! update food entry in inventory
-                    b=1
-                    inv(b)%stock=inv(b)%stock+a
-                    write(std_o, *) trim(actor(i)%name), " was successful."
-                    write(std_o, *) ansi%gain // " + ", trim(inv(b)%name)&
-                    &, " gained: " , a, "" // ansi%reset
-
+                    c=1
+                    inv(c)%stock=inv(c)%stock+a
                  ! scout
                  case (2)
                    ! determine what was gained and update inventory
-                    call eventDice(2,4,b)
-                    inv(b)%stock=inv(b)%stock+a
-                    write(std_o, *) trim(actor(i)%name), " was successful."
-                    write(std_o, *) ansi%gain // " + "&
-                    &, trim(inv(b)%name), " gained: " , a, "" // ansi%reset
-
+                    call eventDice(2,4,c)
+                    inv(c)%stock=inv(c)%stock+a
               end select
+
+              ! update camplog
+              camplog%actor_success(i)=j
+              camplog%actor_target(i)=c
+              camplog%actor_impact(i)=a
            endif
         endif
      enddo
   enddo
-  write(std_o, *) ""
 
 ! ---- events
 
 ! event loop
-  write(std_o, *) ansi%heading // "Events" // ansi%reset
   do j=1,ne
+     e=.false. ! event occurance reset
+     a=0       ! impact reset
+     c=0       ! target reset
+
      select case (event(j)%name)
 
         ! Theft => lose resources. Preventable; relevant skill = 4 (guarding)
@@ -225,15 +244,12 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv, camplog, ansi)
               call eventDice(skill(4)%dice(b,1), skill(4)%dice(b,2), a)
 
               ! determine what was lost
-              call eventDice(1,4,b) ! 25% all resources
+              call eventDice(1,4,c) ! 25% all resources
 
               ! update what's lost to prevent negatives, update inventory
-              if ((inv(b)%stock-a) .le. 0) a=a+(inv(b)%stock-a)
-              inv(b)%stock = inv(b)%stock-a
+              if ((inv(c)%stock-a) .le. 0) a=a+(inv(c)%stock-a)
+              inv(c)%stock = inv(c)%stock-a
 
-              write(std_o, *) event(j)%text
-              write(std_o, *) ansi%loss // " - ", trim(inv(b)%name)&
-              &, " lost: " , a, "" // ansi%reset
            endif
 
         ! Storms => lose resources; active scouts lessens impact
@@ -256,15 +272,12 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv, camplog, ansi)
               call eventDice(1,20-b, a)
 
               ! determine what was lost
-              call eventDice(1,4,b) ! 25% all resources
+              call eventDice(1,4,c) ! 25% all resources
 
               ! update what's lost to prevent negatives, update inventory
-              if ((inv(b)%stock-a) .le. 0) a=a+(inv(b)%stock-a)
-              inv(b)%stock = inv(b)%stock-a
+              if ((inv(c)%stock-a) .le. 0) a=a+(inv(c)%stock-a)
+              inv(c)%stock = inv(c)%stock-a
 
-              write(std_o, *) event(j)%text
-              write(std_o, *) ansi%loss // " - ", trim(inv(b)%name)&
-              &, " lost: " , a, "" // ansi%reset
            endif
 
 
@@ -288,20 +301,22 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv, camplog, ansi)
               call eventDice(1,20-b, a)
 
               ! determine who lost health
-              call eventDice(1,na,b)
+              call eventDice(1,na,c)
 
               ! update health lost to prevent negatives, update health
-              if (actor(b)%health-a .le. 0) a=a+(actor(b)%health-a)
-              actor(b)%health = actor(b)%health-a
+              if (actor(c)%health-a .le. 0) a=a+(actor(c)%health-a)
+              actor(c)%health = actor(c)%health-a
 
-              write(std_o, *) event(j)%text
-              write(std_o, *) ansi%loss // " - ", trim(actor(b)%name)&
-              &, " lost: " , a, " health", "" // ansi%reset
            endif
 
       end select
+
+     ! update camplog
+     camplog%event(j)=e
+     camplog%event_target(j)=c
+     camplog%event_impact(j)=a
+
   enddo
-  write(std_o, *) ""
 
 end subroutine camp
 
@@ -400,7 +415,7 @@ subroutine clear(ne, na, camplog)
   camplog%event_impact(:)=0
 
 ! clear activities
-  camplog%actor_succes(:)=0
+  camplog%actor_success(:)=0
   camplog%actor_target(:)=0
   camplog%actor_impact(:)=0
 
