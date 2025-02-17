@@ -82,8 +82,8 @@ subroutine game_loop()
 
      ! prompt
      write(std_o, *) "> Waiting for user input " // ansi%info&
-        &, "|1: play |2: view log |3: view inventory " &
-        &, "|4: view team |5: exit"&
+        &, "(1) play (2) view log (3) view inventory " &
+        &, "(4) view team (5) exit"&
         & // ansi%reset
      read *, code
 
@@ -110,7 +110,7 @@ subroutine game_loop()
            call viewInventory(ni, DAT_inv, ansi)
         ! view team
         case (4)
-           call viewTeam(na, DAT_actor, ansi)
+           call viewTeam(na, DAT_actor, ns, DAT_skill, ansi)
         ! exit
         case (5)
            done = .true.
