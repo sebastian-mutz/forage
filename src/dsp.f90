@@ -78,30 +78,34 @@ end subroutine viewInventory
 
 ! ==================================================================== !
 ! -------------------------------------------------------------------- !
-subroutine viewTeam(n, actor, ansi)
+subroutine viewTeam(na, actor, ns, skill, ansi)
 
 ! ==== Description
 ! out: eventCode - code for specific events; to betied to procedures.
 
 ! ==== Declarations
-  integer(i4)    , intent(in) :: n
-  type(TYP_actor), intent(in) :: actor(n)
+  integer(i4)    , intent(in) :: na, ns
+  type(TYP_actor), intent(in) :: actor(na)
+  type(TYP_skill), intent(in) :: skill(ns)
   type(TYP_ansi) , intent(in) :: ansi
-  integer(i4)                 :: i
+  integer(i4)                 :: i, j
 
 ! ==== Instructions
 ! splash
   write(std_o, *) ansi%heading // ""
   write(std_o, *) "// Expedition Members //"
   write(std_o, *) "========================"
-  do i=1,n
+  do i=1,na
      write(std_o, *) ""
-     write(std_o, '(a,a15,a5,i2,a1)'), ansi%info // "", actor(i)%name, "" // ansi%reset!&
+     write(std_o, '(a,a15,a5,i2,a1)'), ansi%info // "", actor(i)%name, "" // ansi%reset
      write(std_o, '(a8,i3,a10,i3)'), "Health: ", actor(i)%health, "Sanity:", actor(i)%sanity
-     write(std_o, *) "------------------------"
-
+     write(std_o, *) "---"
+     do j=1,ns
+        write(std_o, '(a8,i2)') skill(j)%name, actor(i)%skill(j)
+     enddo
+  write(std_o, *) "---"
   enddo
-     write(std_o, *) ""
+  write(std_o, *) ""
 
 end subroutine viewTeam
 
