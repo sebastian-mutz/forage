@@ -4,7 +4,7 @@ FORage is a simple, postapocalyptic, pigeon-themed expedition manager game writt
 
 ## Progress
 
-This is **very early work in progress** (not something I'd normally upload actually). I started this to experiment with the fortran package manager and standard library, but it looks like it'll turn into a little more. Current progress: <br/>
+This is **very early work in progress** (not something I'd normally upload actually). I started this to try out the new [fortran package manager](https://github.com/fortran-lang/fpm) and [fortran standard library](https://github.com/fortran-lang/stdlib), but it looks like it'll turn into a little more. Current progress: <br/>
 
 | Feature               | Implemented |
 | --------------------- | ----------- |
@@ -39,4 +39,4 @@ Climate change, pandemics, and global political instability lead to a series of 
 - **Survive**: Deal with accidents and diseases, prevent a mutiny, and defend your nest against intruders.
 
 ## Installation
-FORage can be installed/compiled with the fortran package manager (fpm).
+FORage can be installed/compiled with the [fortran package manager (fpm)](https://github.com/fortran-lang/fpm).
