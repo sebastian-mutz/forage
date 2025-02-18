@@ -8,7 +8,7 @@ module dsp
 ! | Display module for Fortran expedition simulator.                   |
 ! |                                                                    |
 ! | license : MIT                                                      |
-! | author  : Sebastian G. Mutz (sebastian@sebastianmutz.eu)           |
+! | author  : Sebastian G. Mutz (sebastian@sebastianmutz.com)          |
 ! |--------------------------------------------------------------------|
 
 ! load modules
