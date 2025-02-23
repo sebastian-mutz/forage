@@ -21,7 +21,7 @@ Current progress and roadmap: <br/>
 | Saving/loading        | -           |
 | Level maps            | -           |
 | Story mode            | -           |
-| Team selection        | -           |
+| Team selection        | ✓           |
 | SDL2 display          | -           |
 | SDL2 sound            | -           |
 | SDL2 events & input   | -           |
