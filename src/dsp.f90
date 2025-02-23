@@ -43,9 +43,9 @@ subroutine start(ansi)
   write(std_o, *) "// FORage - Expedition Simulator //"
   write(std_o, *) "///////////////////////////////////"
   write(std_o, *) ansi%info // ""
-  write(std_o, *) "1. Continue game."
-  write(std_o, *) "2. New game (overwrites progress)."
-  write(std_o, *) "3. Exit." // ansi%reset
+!   write(std_o, *) "1. Continue game."
+!   write(std_o, *) "2. New game (overwrites progress)."
+!   write(std_o, *) "3. Exit." // ansi%reset
 
 end subroutine start
 
@@ -112,17 +112,19 @@ end subroutine viewTeam
 
 ! ==================================================================== !
 ! -------------------------------------------------------------------- !
-subroutine viewLog(ne, event, ns, skill, na, actor, ni, inv, d, camplog, ansi)
+subroutine viewLog(ne, event, ns, skill, na, actor, ni, inv, day&
+        &, eventlog, actionlog, ansi)
 
 ! ==== Description
 ! Generates and displays text from the camplog
 
 ! ==== Declarations
-  integer(i4)              , intent(in) :: na, ns, ni, ne, d
+  integer(i4)              , intent(in) :: na, ns, ni, ne, day
   type(TYP_skill)          , intent(in) :: skill(ns)
   type(TYP_event)          , intent(in) :: event(ne)
   type(TYP_ansi)           , intent(in) :: ansi
-  type(TYP_camplog(ne, na)), intent(in) :: camplog
+  type(TYP_eventlog)       , intent(in) :: eventlog(ne)
+  type(TYP_actionlog)      , intent(in) :: actionlog(na)
   type(TYP_actor)          , intent(in) :: actor(na)
   type(TYP_resource)       , intent(in) :: inv(ni)
   integer(i4)                           :: i
@@ -133,7 +135,7 @@ subroutine viewLog(ne, event, ns, skill, na, actor, ni, inv, d, camplog, ansi)
   write(std_o, *) ansi%heading // ""
   write(std_o, *) "// End-of-Day Results //"
   write(std_o, *) "========================"
-  write(std_o, *) "Day: ", d
+  write(std_o, *) "Day: ", day
   write(std_o, *) "" // ansi%reset
 
   ! render and display activity log
@@ -141,22 +143,22 @@ subroutine viewLog(ne, event, ns, skill, na, actor, ni, inv, d, camplog, ansi)
   write(std_o, *) "------------" // ansi%reset
   empty=.true.
   do i=1,na
-     select case (camplog%actor_success(i))
+     select case (actionlog(i)%actor_success)
         ! material gain (forage or scout)
         case (1,2)
            empty=.false.
            write(std_o, *) trim(actor(i)%name), " was successful."&
-           &, " (",trim(skill(camplog%actor_success(i))%name), ")"
+           &, " (",trim(skill(actionlog(i)%actor_success)%name), ")"
            write(std_o, *) ansi%gain // " + "&
-           &, trim(inv(camplog%actor_target(i))%name), " gained: "&
-           & , camplog%actor_impact(i), "" // ansi%reset
+           &, trim(inv(actionlog(i)%actor_target)%name), " gained: "&
+           & , actionlog(i)%actor_impact, "" // ansi%reset
         ! health gain (heal)
         case (3)
            empty=.false.
            write(std_o, *) trim(actor(i)%name), " was successful."
            write(std_o, *) ansi%gain // " + "&
-           &, trim(actor(camplog%actor_target(i))%name), " healed: "&
-           & , camplog%actor_impact(i), "" // ansi%reset
+           &, trim(actor(actionlog(i)%actor_target)%name), " healed: "&
+           & , actionlog(i)%actor_impact, "" // ansi%reset
      end select
   enddo
   if (empty) write(std_o, *) "No successful activities."
@@ -167,22 +169,22 @@ subroutine viewLog(ne, event, ns, skill, na, actor, ni, inv, d, camplog, ansi)
   write(std_o, *) "---------" // ansi%reset
   empty=.true.
   do i=1,ne
-     if (camplog%event(i)) then
+     if (eventlog(i)%event) then
         select case (event(i)%name)
            ! material loss
            case ("Theft", "Storm")
               empty=.false.
               write(std_o, *) trim(event(i)%text)
               write(std_o, *) ansi%loss // " - "&
-              &, trim(inv(camplog%event_target(i))%name), " lost: "&
-              &, camplog%event_impact(i), "" // ansi%reset
+              &, trim(inv(eventlog(i)%event_target)%name), " lost: "&
+              &, eventlog(i)%event_impact, "" // ansi%reset
            ! health loss
            case ("Weather", "Accident")
               empty=.false.
               write(std_o, *) trim(event(i)%text)
               write(std_o, *) ansi%loss // " - "&
-              &, trim(actor(camplog%event_target(i))%name), " lost health: "&
-              &, camplog%event_impact(i), "" // ansi%reset
+              &, trim(actor(eventlog(i)%event_target)%name), " lost health: "&
+              &, eventlog(i)%event_impact, "" // ansi%reset
         end select
      endif
   enddo

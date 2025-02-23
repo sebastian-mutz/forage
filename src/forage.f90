@@ -43,11 +43,16 @@ subroutine game_loop()
 
 ! ==== Declarations
 ! game mechanics
-  logical                   :: done=.false.
-  integer(i4)               :: code, day
-  integer(i4), parameter    :: ne=size(DAT_event), na=size(DAT_actor)&
-                            &, ni=size(DAT_inv)  , ns=size(DAT_skill)
-  type(TYP_camplog(ne, na)) :: camplog
+  logical                          :: done=.false.
+  integer(i4)                      :: code, day
+  integer(i4)                      :: ne, na, ns, ni
+  type(TYP_event)    , allocatable :: event(:)
+  type(TYP_actor)    , allocatable :: actor(:)
+  type(TYP_skill)    , allocatable :: skill(:)
+  type(TYP_resource) , allocatable :: inv(:)
+  type(TYP_eventlog) , allocatable :: eventlog(:)
+  type(TYP_actionlog), allocatable :: actionlog(:)
+  integer(i4)        , allocatable :: roster(:)
 
 ! display
   type(TYP_ansi) :: ansi
@@ -56,26 +61,43 @@ subroutine game_loop()
   integer(i4) :: i
 
 ! ==== Instructions
-! initialisation
-  call initialise(ansi)
-! clear camping log
-  call clear(ne, na, camplog)
-! reset days
-  day=0
+! initialise display
+  call initansi(ansi)
 
 ! splash screen and user input
   call start(ansi)
-  read *, code
-
-! load game state/update inventory
-  call load(ni, DAT_inv)
+!  read *, code
 
 ! determine action
-  select case (code)
-     case (1); write(std_o, *) "> Loading game ..."
-     case (2); write(std_o, *) "> Starting new game ..."
-     case (3); done = .true.
-  end select
+!   select case (code)
+!      case (1); write(std_o, *) "> Loading game ..."
+!      case (2); write(std_o, *) "> Starting new game ..."
+!      case (3); done = .true.
+!   end select
+
+! team selection
+  call viewTeam(size(DAT_actor), DAT_actor, size(DAT_skill), DAT_skill, ansi)
+  call buildRoster(size(DAT_actor), na, roster, ansi)
+
+! event, skill, resurce selection (if implemented)
+! for now, pass data size
+  ne=size(DAT_event)
+  ns=size(DAT_skill)
+  ni=size(DAT_inv)
+
+! initialisation of game world
+  call initialise(size(DAT_event), DAT_event, size(DAT_actor), DAT_actor&
+    &, size(DAT_skill), DAT_skill, size(DAT_inv), DAT_inv&
+    &, ne, event, na, roster, actor, ns, skill, ni, inv, eventlog, actionlog)
+
+! clear camping log
+  call clear(ne, eventlog, na, actionlog)
+
+! reset days
+  day=0
+
+! load game state/update inventory
+  call load(ni, inv)
 
 ! game loop
   do while (.not. done)
@@ -94,23 +116,23 @@ subroutine game_loop()
            ! update day
            day=day+1
            ! clear camplog from previous day
-           call clear(ne, na, camplog)
+           call clear(ne, eventlog, na, actionlog)
            ! camp (compute activities and events)
-           call camp(ne, DAT_event, ns, DAT_skill, na, DAT_actor&
-             &, ni, DAT_inv, camplog)
+           call camp(ne, event, ns, skill, na, actor&
+             &, ni, inv, eventlog, actionlog)
            ! view camping log
-           call viewLog(ne, DAT_event, ns, DAT_skill, na, DAT_actor&
-             &, ni, DAT_inv, day, camplog, ansi)
+           call viewLog(ne, event, ns, skill, na, actor&
+             &, ni, inv, day, eventlog, actionlog, ansi)
         ! view camplog
         case (2)
-           call viewLog(ne, DAT_event, ns, DAT_skill, na, DAT_actor&
-             &, ni, DAT_inv, day, camplog, ansi)
+           call viewLog(ne, event, ns, skill, na, actor&
+             &, ni, inv, day, eventlog, actionlog, ansi)
         ! view inventory
         case (3)
-           call viewInventory(ni, DAT_inv, ansi)
+           call viewInventory(ni, inv, ansi)
         ! view team
         case (4)
-           call viewTeam(na, DAT_actor, ns, DAT_skill, ansi)
+           call viewTeam(na, actor, ns, skill, ansi)
         ! exit
         case (5)
            done = .true.
@@ -118,12 +140,21 @@ subroutine game_loop()
 
   enddo
 
+! deallocate before exiting
+  deallocate(event)
+  deallocate(actor)
+  deallocate(skill)
+  deallocate(inv)
+  deallocate(eventlog)
+  deallocate(actionlog)
+  deallocate(roster)
+
 end subroutine game_loop
 
 
 ! ==================================================================== !
 ! -------------------------------------------------------------------- !
-subroutine camp(ne, event, ns, skill, na, actor, ni, inv, camplog)
+subroutine camp(ne, event, ns, skill, na, actor, ni, inv, eventlog, actionlog)
 
 ! ==== Description
 ! Simulates the outcome of activities and events when camping (1 per turn/day):
@@ -135,19 +166,19 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv, camplog)
 !    c. If successful, uses actor skills to determine dice to be rolled
 !       (i.e. the value range) to determine the extent of the success
 !       (e.g., how much food was gained from foraging).
-!    d. Update inventory and camplog.
+!    d. Update inventory, activity log and event log.
 !
 ! 2. Determines outcome of random events (theft, accidents, etc.)
 !    a. Roll for events from a predefined list
 !    b. Determine outcome of events; may depend on actor skills.
-!    c. Update actors, inventory, and camplog as necessary.
+!    c. Update actors, inventory, activity log and event log as necessary.
 !
 ! in:
 ! na, ns, ni, ne - no. of actors, skills, inventory items, evcnts
 ! skills, events - skill and event attributes
 !
 ! inout:
-! camplog, actor and inventory (inv)
+! activity log, event log, actor and inventory (inv)
 !
 ! other:
 ! i, j, a, b, c - integers for looping and calculations
@@ -158,9 +189,10 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv, camplog)
   integer(i4)              , intent(in)    :: na, ns, ni, ne
   type(TYP_skill)          , intent(in)    :: skill(ns)
   type(TYP_event)          , intent(in)    :: event(ne)
-  type(TYP_camplog(ne, na)), intent(inout) :: camplog
   type(TYP_actor)          , intent(inout) :: actor(na)
   type(TYP_resource)       , intent(inout) :: inv(ni)
+  type(TYP_eventlog)       , intent(inout) :: eventlog(ne)
+  type(TYP_actionlog)      , intent(inout) :: actionlog(na)
   integer(i4)                              :: i, j, a, b, c
   real(wp)                                 :: p
   logical                                  :: e
@@ -203,10 +235,10 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv, camplog)
                     inv(c)%stock=inv(c)%stock+a
               end select
 
-              ! update camplog
-              camplog%actor_success(i)=j
-              camplog%actor_target(i)=c
-              camplog%actor_impact(i)=a
+              ! update activity logs
+              actionlog(i)%actor_success=j
+              actionlog(i)%actor_target=c
+              actionlog(i)%actor_impact=a
            endif
         endif
      enddo
@@ -311,10 +343,10 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv, camplog)
 
       end select
 
-     ! update camplog
-     camplog%event(j)=e
-     camplog%event_target(j)=c
-     camplog%event_impact(j)=a
+     ! update event logs
+     eventlog(j)%event=e
+     eventlog(j)%event_target=c
+     eventlog(j)%event_impact=a
 
   enddo
 
@@ -376,10 +408,67 @@ end subroutine eventBool
 
 ! ==================================================================== !
 ! -------------------------------------------------------------------- !
-subroutine initialise(ansi)
+subroutine buildRoster(na0, na, roster, ansi)
 
 ! ==== Description
-!! create ansi style using derived type TYP_ansi
+! Procedure for team selection.
+! out: na     - number of actors on roster
+!      roster - index values for selected actors (actor IDs)
+
+! ==== Declarations
+  type(TYP_ansi)          , intent(in)  :: ansi
+  integer(i4)             , intent(in)  :: na0
+  integer(i4)             , intent(out) :: na
+  integer(i4), allocatable, intent(out) :: roster(:)
+  integer(i4)                           :: i, j
+  logical                               :: next
+
+! ==== Instructions
+  na = 3
+  allocate(roster(na))
+
+  ! reset roster
+  do i=1,na
+     roster(i)=0
+  enddo
+
+  ! select team
+  do i=1,na
+     next=.false.
+     write(std_o, *) "> select next team member for roster"&
+        &, " (max. 3)" // ansi%info // " [type actor id]" // ansi%reset
+     do while (.not. next)
+        read *, roster(i)
+        next=.true.
+        ! check if number is valid
+        if (roster(i) .le. 0 .or. roster(i) .gt. na0) then
+           write(std_o, *) ansi%loss // "Invalid number!" // ansi%reset
+           next=.false.
+        endif
+        ! check if already in roster
+        if (i .gt. 1) then
+           do j=1,i-1
+              if (roster(i) .eq. roster(j)) then
+                 write(std_o, *) ansi%loss // "Already selected!" // ansi%reset
+                 next=.false.
+              endif
+           enddo
+        endif
+     enddo
+     write(std_o, *) ansi%gain // "Member accepted!" // ansi%reset
+     write(std_o, *)
+  enddo
+
+
+end subroutine buildRoster
+
+
+! ==================================================================== !
+! -------------------------------------------------------------------- !
+subroutine initansi(ansi)
+
+! ==== Description
+!! Create ansi style using derived type TYP_ansi.
 
 ! ==== Declarations
   type(TYP_ansi), intent(out) :: ansi
@@ -393,33 +482,97 @@ subroutine initialise(ansi)
   ansi%loss    = fg_color_magenta
   ansi%reset   = style_reset
 
-end subroutine
+end subroutine initansi
+
+! ==================================================================== !
+! -------------------------------------------------------------------- !
+subroutine initialise(ne0, event0, na0, actor0, ns0, skill0, ni0, inv0&
+                    &, ne, event, na, roster, actor, ns, skill, ni, inv&
+                    &, eventlog, actionlog)
+
+! ==== Description
+!! Initialisation procedure.
+!! 1. Create ansi style using derived type TYP_ansi
+!! 2. Builds key arrays from options and game data.
+! TODO: think about implement selecting a subset of events (skills and resources?)
+
+! ==== Declarations
+  integer(i4)                     , intent(in)  :: ne0, na0, ns0, ni0
+  integer(i4)                     , intent(in)  :: na, ne, ns, ni
+  type(TYP_event)                 , intent(in)  :: event0(ne0)
+  type(TYP_actor)                 , intent(in)  :: actor0(na0)
+  type(TYP_skill)                 , intent(in)  :: skill0(ns0)
+  type(TYP_resource)              , intent(in)  :: inv0(ni0)
+  integer(i4)                     , intent(in)  :: roster(na)
+  type(TYP_actor)    , allocatable, intent(out) :: actor(:)
+  type(TYP_event)    , allocatable, intent(out) :: event(:)
+  type(TYP_skill)    , allocatable, intent(out) :: skill(:)
+  type(TYP_resource) , allocatable, intent(out) :: inv(:)
+  type(TYP_eventlog) , allocatable, intent(out) :: eventlog(:)
+  type(TYP_actionlog), allocatable, intent(out) :: actionlog(:)
+  integer(i4)                                   :: i, j
+
+! ==== Instructions
+
+! init events
+  allocate(event(ne))
+  event(:)=event0(:)
+
+! init actors (select subset)
+  allocate(actor(na))
+  do i=1,na
+     do j=1,na0
+        if (roster(i) .eq. actor0(j)%id) actor(i)=actor0(j)
+     enddo
+  enddo
+
+! init skills
+  allocate(skill(ns))
+  skill(:)=skill0(:)
+
+! init inventory
+  allocate(inv(ni))
+  inv(:)=inv0(:)
+
+! event log
+  allocate(eventlog(ne))
+
+! activity log
+  allocate(actionlog(na))
+
+end subroutine initialise
 
 
 ! ==================================================================== !
 ! -------------------------------------------------------------------- !
-subroutine clear(ne, na, camplog)
+subroutine clear(ne, eventlog, na, actionlog)
 
 ! ==== Description
-!! clear the camplog.
+!! clear the camp logs.
 
 ! ==== Declarations
-  integer(i4)              , intent(in)    :: na, ne
-  type(TYP_camplog(ne, na)), intent(inout) :: camplog
+  integer(i4)        , intent(in)    :: ne, na
+  type(TYP_eventlog) , intent(inout) :: eventlog(ne)
+  type(TYP_actionlog), intent(inout) :: actionlog(na)
+  integer(i4)                        :: i
 
 ! ==== Instructions
 
 ! clear events
-  camplog%event(:)=.false.
-  camplog%event_target(:)=0
-  camplog%event_impact(:)=0
+  do i=1,ne
+     eventlog(i)%event=.false.
+     eventlog(i)%event_target=0
+     eventlog(i)%event_impact=0
+  enddo
 
 ! clear activities
-  camplog%actor_success(:)=0
-  camplog%actor_target(:)=0
-  camplog%actor_impact(:)=0
+  do i=1,na
+     actionlog(i)%actor_success=0
+     actionlog(i)%actor_target=0
+     actionlog(i)%actor_impact=0
+  enddo
 
-end subroutine
+end subroutine clear
 
 
 ! ==================================================================== !
