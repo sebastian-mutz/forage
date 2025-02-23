@@ -4,7 +4,7 @@ FORage is a simple, pigeon-themed, postapocalyptic expedition management game wr
 
 ## Progress
 
-This is **very early work in progress** (not something I'd normally upload at this stage). I started this to try out the new [fortran package manager](https://github.com/fortran-lang/fpm) and [fortran standard library](https://github.com/fortran-lang/stdlib), but it looks like it'll turn into a little more.
+This is **very early work in progress**. I started this to try out the new [fortran package manager](https://github.com/fortran-lang/fpm) and [fortran standard library](https://github.com/fortran-lang/stdlib), but it looks like it'll turn into a little more.
 
 Current progress and roadmap: <br/>
 
@@ -14,19 +14,22 @@ Current progress and roadmap: <br/>
 | Team skills           | ✓           |
 | Expedition Activities | ✓           |
 | Expedition Events     | ✓           |
-| ANSI styled display   | ✓           |
+| ANSI styled text      | ✓           |
 | Terminal input        | ✓           |
 | Morale mechanics      | -           |
-| Survival mechanics    | -           |
+| Survival mechanics    | 25%         |
 | Team selection        | ✓           |
-| Saving/loading        | -           |
+| Duty assignments      | -           |
 | Level maps            | -           |
+| NPCs                  | -           |
 | Story mode            | -           |
+| Saving/loading        | -           |
+| Artwork               | 10%         |
+| Music                 | -           |
 | SDL2 display          | -           |
 | SDL2 sound            | -           |
 | SDL2 events & input   | -           |
-| Artwork               | -           |
-| Music                 | -           |
+
 
 
 ## Story

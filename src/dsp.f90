@@ -39,9 +39,9 @@ subroutine start(ansi)
 ! ==== Instructions
 ! splash
   write(std_o, *) ansi%heading // ""
-  write(std_o, *) "///////////////////////////////////"
-  write(std_o, *) "// FORage - Expedition Simulator //"
-  write(std_o, *) "///////////////////////////////////"
+  write(std_o, *) "/////////////////////////////////"
+  write(std_o, *) "// FORage - Expedition Manager //"
+  write(std_o, *) "/////////////////////////////////"
   write(std_o, *) ansi%info // ""
 !   write(std_o, *) "1. Continue game."
 !   write(std_o, *) "2. New game (overwrites progress)."
