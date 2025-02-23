@@ -18,10 +18,10 @@ Current progress and roadmap: <br/>
 | Terminal input        | ✓           |
 | Morale mechanics      | -           |
 | Survival mechanics    | -           |
+| Team selection        | ✓           |
 | Saving/loading        | -           |
 | Level maps            | -           |
 | Story mode            | -           |
-| Team selection        | ✓           |
 | SDL2 display          | -           |
 | SDL2 sound            | -           |
 | SDL2 events & input   | -           |
