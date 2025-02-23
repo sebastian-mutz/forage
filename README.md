@@ -1,6 +1,6 @@
 # FORage
 
-FORage is a simple, pigeon-themed, postapocalyptic expedition management game written in Fortran.
+FORage is a simple, pigeon-themed, postapocalyptic expedition management and survival game written in Fortran.
 
 ## Progress
 
