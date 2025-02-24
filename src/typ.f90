@@ -43,9 +43,9 @@ module typ
 
 ! skills
   type :: TYP_skill
-     !! Derived type for actors/playable characters.
+     !! Derived type for skills.
      !!
-     !! id      : actor ID
+     !! id      : skill ID
      !! name    : skill name
      !! dice    : dice number range (min & max) for each of the 5 skill levels
      integer(i4)       :: id

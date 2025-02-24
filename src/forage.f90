@@ -492,8 +492,7 @@ subroutine initialise(ne0, event0, na0, actor0, ns0, skill0, ni0, inv0&
 
 ! ==== Description
 !! Initialisation procedure.
-!! 1. Create ansi style using derived type TYP_ansi
-!! 2. Builds key arrays from options and game data.
+!! Builds key arrays from options and game data.
 ! TODO: think about implement selecting a subset of events (skills and resources?)
 
 ! ==== Declarations
