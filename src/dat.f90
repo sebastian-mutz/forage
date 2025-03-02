@@ -46,16 +46,16 @@ module dat
 
   data DAT_event(1)%name/"Theft"/ &
        &, DAT_event(1)%text/"Thieves snuck past your guards."/ &
-       &, DAT_event(1)%p/0.8/ &
+       &, DAT_event(1)%p/0.8_wp/ &
        &, DAT_event(2)%name/"Storm"/ &
        &, DAT_event(2)%text/"A big storm ravaged your camp and damaged some goods."/ &
-       &, DAT_event(2)%p/0.1/ &
+       &, DAT_event(2)%p/0.1_wp/ &
        &, DAT_event(3)%name/"Weather"/ &
        &, DAT_event(3)%text/"The weather was particularly bad. One of your team members is sick."/ &
-       &, DAT_event(3)%p/0.1/ &
+       &, DAT_event(3)%p/0.1_wp/ &
        &, DAT_event(4)%name/"Accident"/ &
        &, DAT_event(4)%text/"One of your team members tripped and fell. Ouch!"/ &
-       &, DAT_event(4)%p/0.1/
+       &, DAT_event(4)%p/0.1_wp/
 
   data DAT_skill(1)%name/"Forage"/ &
        &, DAT_skill(1)%dice(1,1)/1/, DAT_skill(1)%dice(1,2)/4/ &

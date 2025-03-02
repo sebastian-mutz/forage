@@ -213,7 +213,7 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv, eventlog, actionlog)
         if (actor(i)%action .eq. j) then
 
            ! get probability of success (max skill=5, max p=0.9) and determine if successful
-           p = float(actor(i)%skill(j))/(5./0.9)
+           p = float(actor(i)%skill(j))/(5.0_wp/0.9_wp)
            call eventBool(p,e)
 
            ! if determine extent of success/failure
@@ -265,7 +265,7 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv, eventlog, actionlog)
            enddo
 
            ! apply event probability modifier (p approaches 0) and determine outcome
-           p = event(j)%p/(2.0**(0.5*(float(b)-1.0)))
+           p = event(j)%p/(2.0_wp**(0.5_wp*(float(b)-1.0_wp)))
            call eventBool(p,e)
 
            ! determine event impact if needed
