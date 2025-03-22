@@ -84,11 +84,16 @@ module typ
   type :: TYP_event
      !! Derived type for events.
      !!
-     !! name   : event name
-     !! text   : short event description
-     !! p      : probability of event
+     !! name     : event name
+     !! type     : event type (guardcheck_stock, scoutcheck_stock, healercheck_health)
+     !! text     : short event description
+     !! skill    : skill index used for cost calculationg
+     !! passfail : true if pass-fail/all-or-nothing situations (e.g., guarding)
+     !! p        : probability of event
      character(len=10)  :: name
      character(len=100) :: text
+     integer(i4)        :: skill
+     logical            :: passfail
      real(wp)           :: p
   end type TYP_event
 

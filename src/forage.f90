@@ -246,6 +246,7 @@ subroutine camp(ne, event, ns, skill, na, actor, ni, inv, eventlog, actionlog)
 
 ! ---- events
 
+! TODO: re-implement using new event attributes
 ! event loop
   do j=1,ne
      e=.false. ! event occurance reset
